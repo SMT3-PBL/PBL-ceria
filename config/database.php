@@ -1,9 +1,9 @@
 <?php
-$host = "localhost";
-$port = "5432";
-$db   = "pbl_ceria";
-$user = "postgres"; //menyesuaikan
-$pass = "root"; //menyesuaikan
+$host = "ep-cold-hat-azf75aet-pooler.c-3.ap-southeast-1.aws.neon.tech";
+$port = 5432;
+$db   = "pbl-ceria";
+$user = "anu";
+$pass = "npg_sxHPjUCn2cr1";
 
 try {
   $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$db", $user, $pass);
