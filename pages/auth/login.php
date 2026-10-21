@@ -1,3 +1,12 @@
+<?php
+require_once __DIR__ . '/../../includes/init.php';
+
+$pesan = $_SESSION['pesan'] ?? '';
+unset($_SESSION['pesan']);
+?>
+
+<!-- Tampilan Login Sementara -->
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -6,8 +15,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
 
-  <!-- Tailwind via CDN. Kalau nanti pakai CLI, ganti dengan:
-       <link rel="stylesheet" href="../../assets/css/output.css"> -->
+  <!-- <link rel="stylesheet" href="../../assets/css/output.css"> -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
@@ -21,7 +29,13 @@
         Login untuk mengelola tenant kamu
       </p>
 
-      <form action="process/login.php" method="POST" class="space-y-4">
+      <?php if ($pesan !== ''): ?>
+        <div class="mb-4 rounded-lg bg-red-100 p-3 text-sm text-red-700">
+          <?= htmlspecialchars($pesan, ENT_QUOTES, 'UTF-8') ?>
+        </div>
+      <?php endif; ?>
+
+      <form action="handlers/login_process.php" method="POST" class="space-y-4">
 
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
