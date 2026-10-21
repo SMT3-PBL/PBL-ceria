@@ -1,3 +1,15 @@
+<?php
+require_once __DIR__ . '/../../includes/init.php';
+
+
+$pesan = $_SESSION['pesan'] ?? '';
+$berhasil = $_SESSION['registrasi_berhasil'] ?? false;
+
+unset($_SESSION['pesan'], $_SESSION['registrasi_berhasil']);
+?>
+
+<!-- Tampilan Register Sementara -->
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -6,8 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daftar</title>
 
-  <!-- Tailwind via CDN. Kalau nanti pakai CLI, ganti dengan:
-       <link rel="stylesheet" href="../../assets/css/output.css"> -->
+  <!-- <link rel="stylesheet" href="../../assets/css/output.css"> -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
@@ -21,17 +32,21 @@
         Buat akun untuk mengelola tenant kamu
       </p>
 
-      <form action="process/register.php" method="POST" class="space-y-4">
+
+      <?php if ($pesan !== ''): ?>
+        <div class="mb-4 rounded-lg p-3 text-sm <?= $berhasil
+                                                  ? 'bg-green-100 text-green-700'
+                                                  : 'bg-red-100 text-red-700' ?>">
+          <?= htmlspecialchars($pesan, ENT_QUOTES, 'UTF-8') ?>
+        </div>
+      <?php endif; ?>
+
+
+      <form action="handlers/register_process.php" method="POST" class="space-y-4">
 
         <div>
           <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama lengkap</label>
           <input type="text" id="nama" name="nama" required placeholder="Nama kamu"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-        </div>
-
-        <div>
-          <label for="nama_tenant" class="block text-sm font-medium text-gray-700 mb-1">Nama tenant</label>
-          <input type="text" id="nama_tenant" name="nama_tenant" required placeholder="Contoh: Warung Bu Ani"
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
 

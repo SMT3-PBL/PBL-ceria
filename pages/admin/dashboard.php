@@ -1,3 +1,21 @@
+<?php
+
+require_once __DIR__ . '/../../includes/init.php';
+
+if (!isset($_SESSION['user_id'])) {
+  header('Location: ../auth/login.php');
+  exit;
+}
+
+if ($_SESSION['user_role'] !== 'admin') {
+  header('Location: ../../index.php');
+  exit;
+}
+
+$nama = $_SESSION['user_name'];
+?>
+
+<!-- Dashboardn Admin Sementara -->
 <!DOCTYPE html>
 <html lang="id">
 
@@ -6,8 +24,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Admin</title>
 
-  <!-- Tailwind via CDN. Kalau nanti pakai CLI, ganti dengan:
-       <link rel="stylesheet" href="../../assets/css/output.css"> -->
+  <!-- <link rel="stylesheet" href="../../assets/css/output.css"> -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
@@ -30,7 +47,7 @@
       </nav>
 
       <div class="px-3 py-4 border-t border-gray-800">
-        <a href="../auth/process/logout.php"
+        <a href="../auth/handlers/logout.php"
           class="block rounded-lg px-3 py-2 text-sm text-red-300 hover:bg-gray-800">Keluar</a>
       </div>
     </aside>
@@ -42,7 +59,7 @@
       <header class="flex items-center justify-between bg-white border-b border-gray-200 px-4 md:px-8 py-4">
         <h1 class="text-xl font-bold">Dashboard</h1>
         <div class="flex items-center gap-3">
-          <span class="text-sm text-gray-500 hidden sm:inline">Halo, Admin</span>
+          <span class="text-sm text-gray-500 hidden sm:inline">Halo, <?= htmlspecialchars($nama) ?></span>
           <a href="../auth/process/logout.php" class="md:hidden text-sm text-red-600">Keluar</a>
         </div>
       </header>
