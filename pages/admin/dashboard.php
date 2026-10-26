@@ -1,40 +1,15 @@
-<!DOCTYPE html>
-<html lang="id">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Admin</title>
-
-  <!-- Tailwind via CDN. Kalau nanti pakai CLI, ganti dengan:
-       <link rel="stylesheet" href="../../assets/css/output.css"> -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <style type="text/tailwindcss">
-    @theme {
-      --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      --color-primary: #004ac6;
-      --color-primary-dark: #003ea8;
-      --color-soft: #eff4ff;
-      --color-surface: #f8f9ff;
-      --color-ink: #0b1c30;
-      --color-muted: #434655;
-      --color-line: #d3e4fe;
-      --color-outline: #c3c6d7;
-      --color-ok: #002113;
-      --color-ok-soft: #6ffbbe;
-      --color-warn: #9d4300;
-      --color-warn-soft: #ffdbca;
-      --color-danger: #ba1a1a;
-      --color-danger-soft: #ffdad6;
-    }
-  </style>
-</head>
-
-<body class="min-h-screen bg-surface font-sans text-ink antialiased">
+<?php
+require_once __DIR__ . '/../../includes/init.php';
+$pageTitle = 'Daftar Tenant';
+$role      = 'admin';
+$active    = 'tenants';
+require __DIR__ . '/../../includes/header.php';
+?>
 
   <main class="mx-auto max-w-6xl space-y-5 p-4 pb-10 sm:p-6">
     <div><h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Daftar Tenant</h1></div>
-
+    
+    <!--Cari nama tenant-->
     <form method="get" action="" class="relative max-w-md">
       <label for="cari" class="sr-only">Cari nama tenant</label>
       <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
@@ -44,7 +19,7 @@
     <section class="rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(11,28,48,0.06)] ring-1 ring-line/60 sm:p-6 max-md:bg-transparent max-md:!p-0 max-md:shadow-none max-md:ring-0 md:!p-3">
       <table class="w-full text-left text-sm max-md:block">
         <thead class="max-md:hidden"><tr class="border-b border-line text-xs font-extrabold uppercase tracking-wider text-muted [&>th]:px-0 [&>th]:py-3">
-          <th scope="col">ID</th><th scope="col">Nama Tenant</th><th scope="col">Email</th><th scope="col">QRIS</th><th scope="col">Status</th><th scope="col">Aksi</th></tr></thead>
+          <th scope="col">ID</th><th scope="col">Nama Tenant</th><th scope="col">Akun Penjual (Email)</th><th scope="col">QRIS</th><th scope="col">Status</th><th scope="col">Aksi</th></tr></thead>
         <tbody class="max-md:block max-md:space-y-3">
           <tr data-filter-item="tenant" class="max-md:block max-md:rounded-xl max-md:bg-surface max-md:p-4 max-md:ring-1 max-md:ring-line/60 md:border-b md:border-line/60 md:last:border-0">
             <td data-label="ID" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none md:pr-4 md:text-muted">1</td>
@@ -84,5 +59,4 @@
     </section>
   </main>
 </body>
-
 </html>
