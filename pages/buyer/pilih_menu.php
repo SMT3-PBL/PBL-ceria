@@ -40,9 +40,8 @@ require __DIR__ . '/../../includes/header.php';
       </ul>
     </aside>
 
-<!-- Daftar Menu --> 
-    <section class="min-w-0 rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
 <!-- Tenant Terpilih --> 
+    <section class="min-w-0 rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div class="min-w-0">
           <p class="text-xs font-bold uppercase tracking-wider text-blue-600">Tenant Terpilih</p>
@@ -81,6 +80,7 @@ require __DIR__ . '/../../includes/header.php';
             </div>
           </div>
         </li>
+
 <!-- Detail Menu --> 
         <li data-item data-tenant="1" data-filter-item="menu" data-kategori="Minuman" data-nama="Es Teh Manis" data-harga="4000" data-sel="true" class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 transition data-[sel=true]:border-blue-300 data-[sel=true]:bg-blue-50/50">
           <div class="min-w-0">

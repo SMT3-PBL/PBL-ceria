@@ -9,10 +9,10 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 if (!defined('FC_DEMO')) define('FC_DEMO', true);
 
 // Alamat dasar proyek, terdeteksi otomatis (contoh: /PBL-ceria).
-// GANTI DENGAN KODE INI
 if (!defined('BASE_URL')) {
-    // Kunci langsung nama folder proyek Anda agar fungsinya tidak pernah meleset
-    define('BASE_URL', '/PBL-ceria');
+    $root = str_replace('\\', '/', (string) realpath(__DIR__ . '/..'));
+    $doc  = str_replace('\\', '/', (string) realpath($_SERVER['DOCUMENT_ROOT'] ?? ''));
+    define('BASE_URL', ($doc !== '' && strpos($root, $doc) === 0) ? substr($root, strlen($doc)) : '');
 }
 
 if (!function_exists('e')) {

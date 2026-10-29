@@ -19,7 +19,6 @@ require __DIR__ . '/../../includes/header.php';
             placeholder="Contoh: 12">
           <small class="mt-1 block text-xs text-slate-500">Isi sesuai nomor meja tempat Anda duduk.</small>
         </p>
-
 <!-- Input Nama --> 
         <p>
           <label for="nama_pembeli" class="mb-1.5 block text-sm font-semibold text-slate-700">Nama</label>
@@ -27,7 +26,6 @@ require __DIR__ . '/../../includes/header.php';
             class="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-base placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-200"
             placeholder="Nama Anda">
         </p>
-
 <!-- Submit --> 
         <button type="submit"
           class="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2">

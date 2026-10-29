@@ -54,12 +54,14 @@ require __DIR__ . '/../../includes/header.php';
         <ul class="space-y-3">
         <li data-filter-item="menu" data-kategori="Makanan" class="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl bg-surface p-3 sm:p-4">
           <span class="grid size-16 shrink-0 place-items-center rounded-lg bg-soft text-primary/40 sm:size-20"><svg class="size-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></span>
+
           <!-- Informasi Detail Produk --> 
           <div class="min-w-0 flex-1 basis-40">
             <p class="font-bold leading-snug">Ayam Geprek Level 3</p>
             <p class="text-xs text-muted">Makanan</p>
             <p class="mt-1 font-extrabold">Rp15.000</p>
           </div>
+
           <!-- Tombol Aksi (Stok, edit, dan hapus --> 
           <div class="ml-auto flex items-center gap-2 sm:gap-3">
             <span class="rounded-md bg-ok-soft px-2.5 py-1 text-[11px] font-extrabold uppercase text-ok">Stok 30</span>

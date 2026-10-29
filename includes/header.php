@@ -58,11 +58,11 @@ $ikon = [
     </div>
   </header>
 
-  <!-- Header Pembeli -->
 <?php elseif ($role === 'buyer'):
     $sesi  = sesi_pembeli();
     $nama  = (string) ($sesi['nama_pembeli'] ?? '');
     $menuPembeli = [
+
         'menu'   => ['pages/buyer/pilih_menu.php',   'Pilih Menu &amp; Tenant'],
         'status' => ['pages/buyer/status.php', 'Status Pesanan'],
     ];
@@ -79,6 +79,7 @@ $ikon = [
         <a href="<?= url($tujuan) ?>"<?= $active === $kunci ? ' aria-current="page"' : '' ?> class="flex-1 border-b-2 border-transparent px-3 py-3 text-center text-slate-500 hover:text-slate-900 aria-[current=page]:border-blue-600 aria-[current=page]:text-blue-600 md:flex-none md:rounded-lg md:border-0 md:py-2 md:aria-[current=page]:bg-blue-50"><?= $label ?></a>
 <?php endforeach; ?>
       </nav>
+
 <!-- Informasi Pelanggan-->
       <div class="ml-auto flex items-center gap-2">
         <p class="whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-700">Meja No. <span data-pemesan-meja><?= e($sesi['no_meja'] ?? '-') ?></span></p>
@@ -114,7 +115,6 @@ $ikon = [
         <span class="grid size-10 place-items-center rounded-xl bg-primary text-white"><?= $ikon['garpu'] ?></span>
         <span class="leading-tight"><span class="block text-base font-extrabold text-ink">Food Court</span><span class="block text-[11px] text-muted"><?= $penjual ? 'Portal Penjual' : 'Portal Admin' ?></span></span>
       </a>
-
 <!-- Navigasi Penjual --> 
       <nav aria-label="Navigasi utama" class="order-3 -mx-4 mt-2 flex w-[calc(100%+2rem)] border-t border-line/60 px-4 text-sm font-semibold lg:order-none lg:mx-0 lg:ml-auto lg:mt-0 lg:w-auto lg:border-0 lg:px-0">
 <?php foreach ($menuStaf as $kunci => [$tujuan, $label]): ?>
@@ -135,6 +135,7 @@ $ikon = [
         </p>
 <?php endif; ?>
         <a href="<?= url('/PBL-ceria/pages/auth/handlers/logout.php') ?>" aria-label="Keluar" title="Keluar" class="grid size-10 place-items-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger"><?= $ikon['keluar'] ?></a>
+        <a href="<?= url('pages/auth/logout.php') ?>" aria-label="Keluar" title="Keluar" class="grid size-10 place-items-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger"><?= $ikon['keluar'] ?></a>
       </div>
     </div>
   </header>
