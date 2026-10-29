@@ -9,5 +9,4 @@ $_SESSION = [];
 session_destroy();
 
 // Kembali ke halaman login
-header('Location: ../login.php');
-exit;
+redirect('pages/auth/login.php');
