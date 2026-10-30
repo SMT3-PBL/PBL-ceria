@@ -1,201 +1,65 @@
 <?php
-
 require_once __DIR__ . '/../../includes/init.php';
-
-if (!isset($_SESSION['user_id'])) {
-  header('Location: ../auth/login.php');
-  exit;
-}
-
-if ($_SESSION['user_role'] !== 'admin') {
-  header('Location: ../../index.php');
-  exit;
-}
-
-$nama = $_SESSION['user_name'];
+$pageTitle = 'Daftar Tenant';
+$role      = 'admin';
+$active    = 'tenants';
+require __DIR__ . '/../../includes/header.php';
 ?>
 
-<!-- Dashboardn Admin Sementara -->
-<!DOCTYPE html>
-<html lang="id">
+  <main class="mx-auto max-w-6xl space-y-5 p-4 pb-10 sm:p-6">
+    <div><h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Daftar Tenant</h1></div>
+    
+    <!--Cari nama tenant-->
+    <form method="get" action="" class="relative max-w-md">
+      <label for="cari" class="sr-only">Cari nama tenant</label>
+      <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+      <input type="search" id="cari" name="cari" data-filter-input="tenant" placeholder="Cari nama tenant..." class="h-11 w-full rounded-lg border border-outline bg-white px-3 text-base text-ink placeholder:text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 pl-10">
+    </form>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Admin</title>
-
-  <!-- <link rel="stylesheet" href="../../assets/css/output.css"> -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</head>
-
-<body class="bg-gray-100 text-gray-800">
-
-  <div class="min-h-screen md:flex">
-
-    <!-- Sidebar -->
-    <aside class="hidden md:flex md:w-64 flex-col bg-gray-900 text-gray-200">
-      <div class="px-6 py-5 text-lg font-bold text-white border-b border-gray-800">
-        PBL-Ceria <span class="block text-xs font-normal text-gray-400">Panel Admin</span>
-      </div>
-
-      <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
-        <a href="dashboard.php" class="block rounded-lg bg-gray-800 px-3 py-2 text-white font-medium">Dashboard</a>
-        <a href="#" class="block rounded-lg px-3 py-2 hover:bg-gray-800">Tenant</a>
-        <a href="#" class="block rounded-lg px-3 py-2 hover:bg-gray-800">Pengguna</a>
-        <a href="#" class="block rounded-lg px-3 py-2 hover:bg-gray-800">Pesanan</a>
-        <a href="#" class="block rounded-lg px-3 py-2 hover:bg-gray-800">Laporan</a>
-      </nav>
-
-      <div class="px-3 py-4 border-t border-gray-800">
-        <a href="../auth/handlers/logout.php"
-          class="block rounded-lg px-3 py-2 text-sm text-red-300 hover:bg-gray-800">Keluar</a>
-      </div>
-    </aside>
-
-    <!-- Konten -->
-    <div class="flex-1 min-w-0">
-
-      <!-- Topbar -->
-      <header class="flex items-center justify-between bg-white border-b border-gray-200 px-4 md:px-8 py-4">
-        <h1 class="text-xl font-bold">Dashboard</h1>
-        <div class="flex items-center gap-3">
-          <span class="text-sm text-gray-500 hidden sm:inline">Halo, <?= htmlspecialchars($nama) ?></span>
-          <a href="../auth/process/logout.php" class="md:hidden text-sm text-red-600">Keluar</a>
-        </div>
-      </header>
-
-      <main class="px-4 md:px-8 py-6 space-y-6">
-
-        <!-- Kartu statistik -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          <div class="bg-white rounded-xl shadow-sm p-5">
-            <p class="text-sm text-gray-500">Total Tenant</p>
-            <p class="text-3xl font-bold mt-1">24</p>
-            <p class="text-xs text-green-600 mt-1">+3 bulan ini</p>
-          </div>
-          <div class="bg-white rounded-xl shadow-sm p-5">
-            <p class="text-sm text-gray-500">Total Menu</p>
-            <p class="text-3xl font-bold mt-1">312</p>
-            <p class="text-xs text-gray-400 mt-1">dari semua tenant</p>
-          </div>
-          <div class="bg-white rounded-xl shadow-sm p-5">
-            <p class="text-sm text-gray-500">Pesanan Hari Ini</p>
-            <p class="text-3xl font-bold mt-1">87</p>
-            <p class="text-xs text-green-600 mt-1">+12% dari kemarin</p>
-          </div>
-          <div class="bg-white rounded-xl shadow-sm p-5">
-            <p class="text-sm text-gray-500">Pendapatan Hari Ini</p>
-            <p class="text-3xl font-bold mt-1">Rp 4,2 jt</p>
-            <p class="text-xs text-gray-400 mt-1">total semua tenant</p>
-          </div>
-        </section>
-
-        <!-- Tabel tenant -->
-        <section class="bg-white rounded-xl shadow-sm">
-          <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-            <h2 class="font-semibold">Tenant Terbaru</h2>
-            <a href="#" class="text-sm text-blue-600 hover:underline">Lihat semua</a>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left">
-              <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
-                <tr>
-                  <th class="px-5 py-3">Tenant</th>
-                  <th class="px-5 py-3">Pemilik</th>
-                  <th class="px-5 py-3">Menu</th>
-                  <th class="px-5 py-3">Status</th>
-                  <th class="px-5 py-3">Terdaftar</th>
-                  <th class="px-5 py-3 text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-100">
-                <tr>
-                  <td class="px-5 py-3 font-medium">Warung Bu Ani</td>
-                  <td class="px-5 py-3">Ani Wijaya</td>
-                  <td class="px-5 py-3">18</td>
-                  <td class="px-5 py-3"><span
-                      class="rounded-full bg-green-100 text-green-700 px-2.5 py-0.5 text-xs">Aktif</span></td>
-                  <td class="px-5 py-3 text-gray-500">12 Okt 2026</td>
-                  <td class="px-5 py-3 text-right"><a href="#" class="text-blue-600 hover:underline">Detail</a></td>
-                </tr>
-                <tr>
-                  <td class="px-5 py-3 font-medium">Kopi Senja</td>
-                  <td class="px-5 py-3">Budi Santoso</td>
-                  <td class="px-5 py-3">24</td>
-                  <td class="px-5 py-3"><span
-                      class="rounded-full bg-green-100 text-green-700 px-2.5 py-0.5 text-xs">Aktif</span></td>
-                  <td class="px-5 py-3 text-gray-500">10 Okt 2026</td>
-                  <td class="px-5 py-3 text-right"><a href="#" class="text-blue-600 hover:underline">Detail</a></td>
-                </tr>
-                <tr>
-                  <td class="px-5 py-3 font-medium">Bakso Pak Joko</td>
-                  <td class="px-5 py-3">Joko Pranoto</td>
-                  <td class="px-5 py-3">9</td>
-                  <td class="px-5 py-3"><span
-                      class="rounded-full bg-yellow-100 text-yellow-700 px-2.5 py-0.5 text-xs">Menunggu</span></td>
-                  <td class="px-5 py-3 text-gray-500">08 Okt 2026</td>
-                  <td class="px-5 py-3 text-right"><a href="#" class="text-blue-600 hover:underline">Detail</a></td>
-                </tr>
-                <tr>
-                  <td class="px-5 py-3 font-medium">Es Teh Mantap</td>
-                  <td class="px-5 py-3">Siti Rahma</td>
-                  <td class="px-5 py-3">6</td>
-                  <td class="px-5 py-3"><span
-                      class="rounded-full bg-gray-200 text-gray-600 px-2.5 py-0.5 text-xs">Nonaktif</span></td>
-                  <td class="px-5 py-3 text-gray-500">02 Okt 2026</td>
-                  <td class="px-5 py-3 text-right"><a href="#" class="text-blue-600 hover:underline">Detail</a></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- Pesanan terbaru -->
-        <section class="bg-white rounded-xl shadow-sm">
-          <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-            <h2 class="font-semibold">Pesanan Terbaru</h2>
-            <a href="#" class="text-sm text-blue-600 hover:underline">Lihat semua</a>
-          </div>
-
-          <ul class="divide-y divide-gray-100 text-sm">
-            <li class="flex items-center justify-between px-5 py-3">
-              <div>
-                <p class="font-medium">#ORD-1042 · Kopi Senja</p>
-                <p class="text-gray-500 text-xs">Meja 5 · 2 item</p>
+    <!-- Tabel daftar tenant -->
+    <section class="rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(11,28,48,0.06)] ring-1 ring-line/60 sm:p-6 max-md:bg-transparent max-md:!p-0 max-md:shadow-none max-md:ring-0 md:!p-3">
+      <table class="w-full text-left text-sm max-md:block">
+        <thead class="max-md:hidden"><tr class="border-b border-line text-xs font-extrabold uppercase tracking-wider text-muted [&>th]:px-0 [&>th]:py-3">
+          <th scope="col">ID</th><th scope="col">Nama Tenant</th><th scope="col">Akun Penjual (Email)</th><th scope="col">QRIS</th><th scope="col">Status</th><th scope="col">Aksi</th></tr></thead>
+        <tbody class="max-md:block max-md:space-y-3">
+          <tr data-filter-item="tenant" class="max-md:block max-md:rounded-xl max-md:bg-surface max-md:p-4 max-md:ring-1 max-md:ring-line/60 md:border-b md:border-line/60 md:last:border-0">
+            <td data-label="ID" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none md:pr-4 md:text-muted">1</td>
+            <td data-label="Nama Tenant" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none font-bold md:pr-4">Ayam Geprek Mas Joko</td>
+            <td data-label="Akun Penjual" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none md:pr-4">joko@gmail.com</td>
+            <td data-label="QRIS" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none md:pr-4"><span class="whitespace-nowrap rounded-md bg-ok-soft px-2.5 py-1 text-[11px] font-extrabold uppercase text-ok">Sudah diunggah</span></td>
+            <td data-label="Status" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none md:pr-4"><span class="rounded-full bg-ok-soft px-2.5 py-1 text-xs font-bold text-ok">Buka</span></td>
+            <td data-label="Aksi" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none">
+              <div class="flex items-center gap-3">
+                <a href="edit_tenant.php?id=1" class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-semibold text-primary hover:bg-soft"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit</a>
+                <a href="edit_tenant.html?id=1" class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-semibold text-primary hover:bg-soft"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit</a>
+                <form method="post" action="" data-confirm="Hapus tenant ini beserta akun penjualnya?">
+                  <input type="hidden" name="id_tenant" value="1">
+                  <button type="submit" name="hapus" value="1" class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-semibold text-danger hover:bg-danger-soft"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Hapus</button>
+                </form>
               </div>
-              <div class="text-right">
-                <p class="font-medium">Rp 48.000</p>
-                <span class="rounded-full bg-blue-100 text-blue-700 px-2.5 py-0.5 text-xs">Diproses</span>
+            </td>
+          </tr>
+          <tr data-filter-item="tenant" class="max-md:block max-md:rounded-xl max-md:bg-surface max-md:p-4 max-md:ring-1 max-md:ring-line/60 md:border-b md:border-line/60 md:last:border-0">
+            <td data-label="ID" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none md:pr-4 md:text-muted">2</td>
+            <td data-label="Nama Tenant" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none font-bold md:pr-4">Bakso Solo Pak Kunto</td>
+            <td data-label="Akun Penjual" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none md:pr-4">kunto@gmail.com</td>
+            <td data-label="QRIS" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none md:pr-4"><span class="whitespace-nowrap rounded-md bg-ok-soft px-2.5 py-1 text-[11px] font-extrabold uppercase text-ok">Sudah diunggah</span></td>
+            <td data-label="Status" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none md:pr-4"><span class="rounded-full bg-ok-soft px-2.5 py-1 text-xs font-bold text-ok">Buka</span></td>
+            <td data-label="Aksi" class="max-md:flex max-md:items-center max-md:justify-between max-md:gap-4 max-md:py-1.5 md:py-3.5 before:text-xs before:font-bold before:uppercase before:text-muted before:content-[attr(data-label)] md:before:content-none">
+              <div class="flex items-center gap-3">
+                <a href="edit_tenant.php?id=2" class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-semibold text-primary hover:bg-soft"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit</a>
+                <a href="edit_tenant.html?id=2" class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-semibold text-primary hover:bg-soft"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit</a>
+                <form method="post" action="" data-confirm="Hapus tenant ini beserta akun penjualnya?">
+                  <input type="hidden" name="id_tenant" value="2">
+                  <button type="submit" name="hapus" value="1" class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-semibold text-danger hover:bg-danger-soft"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Hapus</button>
+                </form>
               </div>
-            </li>
-            <li class="flex items-center justify-between px-5 py-3">
-              <div>
-                <p class="font-medium">#ORD-1041 · Warung Bu Ani</p>
-                <p class="text-gray-500 text-xs">Meja 2 · 3 item</p>
-              </div>
-              <div class="text-right">
-                <p class="font-medium">Rp 65.000</p>
-                <span class="rounded-full bg-green-100 text-green-700 px-2.5 py-0.5 text-xs">Selesai</span>
-              </div>
-            </li>
-            <li class="flex items-center justify-between px-5 py-3">
-              <div>
-                <p class="font-medium">#ORD-1040 · Bakso Pak Joko</p>
-                <p class="text-gray-500 text-xs">Meja 1 · 1 item</p>
-              </div>
-              <div class="text-right">
-                <p class="font-medium">Rp 18.000</p>
-                <span class="rounded-full bg-yellow-100 text-yellow-700 px-2.5 py-0.5 text-xs">Menunggu</span>
-              </div>
-            </li>
-          </ul>
-        </section>
-
-      </main>
-    </div>
-  </div>
-
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p data-filter-empty="tenant" hidden class="py-6 text-center text-sm text-muted">Tenant tidak ditemukan.</p>
+    </section>
+  </main>
 </body>
-
 </html>
