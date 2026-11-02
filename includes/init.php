@@ -2,7 +2,14 @@
 // includes/init.php: dimuat paling awal oleh setiap halaman.
 // Hanya berisi helper tampilan. Gabungkan dengan init.php milik ketua (sesi, koneksi database).
 
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+define('APP_RUNNING', true);
+define('BASE_PATH', dirname(__DIR__));
+
+require_once BASE_PATH . '/config/database.php';
 
 // true = halaman bisa dibuka tanpa login dan memakai data contoh.
 // Ubah ke false setelah login dan database sungguhan aktif.
@@ -16,21 +23,32 @@ if (!defined('BASE_URL')) {
 }
 
 if (!function_exists('e')) {
-    function e($v): string { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); }
+    function e($v): string {
+        return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+    }
 }
 if (!function_exists('url')) {
-    function url(string $path = ''): string { return BASE_URL . '/' . ltrim($path, '/'); }
+    function url(string $path = ''): string {
+        return BASE_URL . '/' . ltrim($path, '/');
+    }
 }
 if (!function_exists('redirect')) {
-    function redirect(string $path): void { header('Location: ' . url($path)); exit; }
+    function redirect(string $path): void {
+        header('Location: ' . url($path));
+        exit;
+    }
 }
 if (!function_exists('rupiah')) {
-    function rupiah($n): string { return 'Rp' . number_format((int) $n, 0, ',', '.'); }
+    function rupiah($n): string {
+        return 'Rp' . number_format((int) $n, 0, ',', '.');
+    }
 }
 
 // Peran yang sedang masuk: ['nama' => ..., 'role' => 'seller'|'admin', 'id_tenant' => ...]
 if (!function_exists('user')) {
-    function user(): ?array { return $_SESSION['user'] ?? null; }
+    function user(): ?array {
+        return $_SESSION['user'] ?? null;
+    }
 }
 if (!function_exists('require_role')) {
     function require_role(string $role): void {
