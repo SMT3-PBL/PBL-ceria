@@ -6,7 +6,8 @@ $user = "anu";
 $pass = "npg_sxHPjUCn2cr1";
 
 try {
-  $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$db", $user, $pass);
+  $dsn = "pgsql:host=$host;port=$port;dbname=$db;sslmode=require;options=endpoint=ep-cold-hat-azf75aet";
+  $pdo = new PDO($dsn, $user, $pass);
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
   die("Koneksi database gagal: " . $e->getMessage());
