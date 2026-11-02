@@ -134,7 +134,6 @@ $ikon = [
           <span class="grid size-9 place-items-center rounded-full bg-primary text-white"><?= $ikon['akun'] ?></span>
         </p>
 <?php endif; ?>
-        <a href="<?= url('/PBL-ceria/pages/auth/handlers/logout.php') ?>" aria-label="Keluar" title="Keluar" class="grid size-10 place-items-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger"><?= $ikon['keluar'] ?></a>
         <a href="<?= url('pages/auth/logout.php') ?>" aria-label="Keluar" title="Keluar" class="grid size-10 place-items-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger"><?= $ikon['keluar'] ?></a>
       </div>
     </div>
