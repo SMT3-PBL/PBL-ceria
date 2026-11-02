@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../includes/init.php';
-require_once BASE_PATH . '/models/Pengguna.php';
+require_once __DIR__ . '/../../../models/Pengguna.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   header('Location: ../login.php');
