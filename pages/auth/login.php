@@ -12,21 +12,9 @@ require __DIR__ . '/../../includes/header.php';
     </div>
 
     <section class="rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(11,28,48,0.06)] ring-1 ring-line/60 sm:p-6 sm:!p-8">
-      <h1 class="text-2xl font-extrabold tracking-tight">Masuk</h1>
+      <h1 class="text-2xl font-extrabold tracking-tight text-center">Login</h1>
 
-      <form id="formLogin" action="" method="post" class="space-y-4">
-
-        <!--Validasi admin atau penjual-->
-        <fieldset>
-          <div class="grid grid-cols-2 gap-3 text-sm font-bold">
-            <label class="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-outline bg-white px-3 py-3 text-muted hover:bg-soft has-[:checked]:border-primary has-[:checked]:bg-soft has-[:checked]:text-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/30">
-              <input type="radio" name="role" value="penjual" checked class="sr-only">Penjual
-            </label>
-            <label class="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-outline bg-white px-3 py-3 text-muted hover:bg-soft has-[:checked]:border-primary has-[:checked]:bg-soft has-[:checked]:text-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/30">
-              <input type="radio" name="role" value="admin" class="sr-only">Admin
-            </label>
-          </div>
-        </fieldset>
+      <form id="formLogin" action="handlers/login_process.php" method="post" class="space-y-4">
         
         <!--Input email-->
         <p><label for="email" class="mb-1.5 block text-sm font-semibold text-ink">Email</label>
