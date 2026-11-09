@@ -38,23 +38,8 @@ try {
   $_SESSION['user_email'] = $pengguna['email'];
   $_SESSION['user_role'] = $pengguna['role'];
 
-  // header('Content-Type: application/json');
-
-  // echo json_encode([
-  //   'success' => true,
-  //   'message' => 'Login berhasil',
-  //   'user' => [
-  //     'id' => $_SESSION['user_id'],
-  //     'email' => $_SESSION['user_email'],
-  //     'nama' => $_SESSION['user_name'],
-  //     'role' => $_SESSION['user_role']
-  //   ]
-  // ]);
-
-  // exit;
-
   if ($pengguna['role'] === 'seller') {
-    header('Location: ../../seller/dashboard.php');
+    header('Location: ../../seller/dashboard/kelola_menu.php');
     exit;
   }
 
