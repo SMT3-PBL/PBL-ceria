@@ -1,6 +1,6 @@
 <?php
 // includes/init.php: dimuat paling awal oleh setiap halaman.
-// Hanya berisi helper tampilan. Gabungkan dengan init.php milik ketua (sesi, koneksi database).
+// Berisi sesi, koneksi database, dan helper tampilan.
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -11,9 +11,9 @@ define('BASE_PATH', dirname(__DIR__));
 
 require_once BASE_PATH . '/config/database.php';
 
-// true = halaman bisa dibuka tanpa login dan memakai data contoh.
-// Ubah ke false setelah login dan database sungguhan aktif.
-if (!defined('FC_DEMO')) define('FC_DEMO', true);
+// true  = halaman bisa dibuka tanpa login dan memakai data contoh.
+// false = pakai data asli dari database (butuh login).
+if (!defined('FC_DEMO')) define('FC_DEMO', false);
 
 // Alamat dasar proyek, terdeteksi otomatis (contoh: /PBL-ceria).
 if (!defined('BASE_URL')) {
@@ -44,10 +44,18 @@ if (!function_exists('rupiah')) {
     }
 }
 
-// Peran yang sedang masuk: ['nama' => ..., 'role' => 'seller'|'admin', 'id_tenant' => ...]
+// Pengguna yang sedang masuk, dibentuk dari session yang diisi handler login
+// (user_id, user_name, user_email, user_role).
 if (!function_exists('user')) {
     function user(): ?array {
-        return $_SESSION['user'] ?? null;
+        if (empty($_SESSION['user_id'])) return null;
+
+        return [
+            'id_pengguna' => (int) $_SESSION['user_id'],
+            'nama'        => (string) ($_SESSION['user_name'] ?? ''),
+            'email'       => (string) ($_SESSION['user_email'] ?? ''),
+            'role'        => (string) ($_SESSION['user_role'] ?? ''),
+        ];
     }
 }
 if (!function_exists('require_role')) {
@@ -57,14 +65,31 @@ if (!function_exists('require_role')) {
     }
 }
 
-// Data untuk header. Ganti isinya dengan data dari model setelah database siap.
+// Data untuk header pembeli.
 if (!function_exists('sesi_pembeli')) {
     function sesi_pembeli(): array {
         return $_SESSION['sesi'] ?? (FC_DEMO ? ['no_meja' => '12', 'nama_pembeli' => 'Nara'] : ['no_meja' => '-', 'nama_pembeli' => 'Pengunjung']);
     }
 }
+
+// Data tenant milik penjual yang sedang login (kolom: id_tenant, nama_tenant,
+// deskripsi, status_tenant, qr_pembayaran, id_pengguna).
 if (!function_exists('tenant_aktif')) {
     function tenant_aktif(): array {
-        return FC_DEMO ? ['id_tenant' => 1, 'nama_tenant' => 'Ayam Geprek Mas Joko', 'status_buka' => true] : ['id_tenant' => (int) (user()['id_tenant'] ?? 0), 'nama_tenant' => (string) (user()['nama_tenant'] ?? '-'), 'status_buka' => true];
+        if (FC_DEMO) {
+            return ['id_tenant' => 1, 'nama_tenant' => 'Ayam Geprek Mas Joko', 'status_tenant' => 'buka'];
+        }
+
+        // Tidak di-cache, supaya setelah status diubah datanya langsung segar.
+        global $pdo;
+        require_once BASE_PATH . '/models/Tenant.php';
+
+        $idPengguna = (int) (user()['id_pengguna'] ?? 0);
+        if ($idPengguna === 0) redirect('pages/auth/login.php');
+
+        $row = (new Tenant($pdo))->getTenantByUserId($idPengguna);
+        if (!$row) redirect('pages/auth/login.php');
+
+        return $row;
     }
 }
