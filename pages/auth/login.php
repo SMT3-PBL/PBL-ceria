@@ -12,7 +12,6 @@ require __DIR__ . '/../../includes/header.php';
     </div>
 
     <section class="rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(11,28,48,0.06)] ring-1 ring-line/60 sm:p-6 sm:!p-8">
-      <h1 class="text-2xl font-extrabold tracking-tight text-center">Login</h1>
 
       <form id="formLogin" action="handlers/login_process.php" method="post" class="space-y-4">
         
