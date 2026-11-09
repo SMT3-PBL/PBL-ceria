@@ -1,6 +1,7 @@
 <?php
 // includes/init.php: dimuat paling awal oleh setiap halaman.
-// Berisi sesi, koneksi database, dan helper tampilan.
+// Hanya berisi helper tampilan. Gabungkan dengan init.php milik ketua (sesi, koneksi database).
+require_once __DIR__ . '/../config/database.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

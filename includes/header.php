@@ -54,9 +54,9 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
     }
   </style>
   <style>
-  [hidden] {
-    display: none !important
-  }
+    [hidden] {
+      display: none !important
+    }
   </style>
 </head>
 
@@ -65,13 +65,13 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
 
   <!-- Header Isi Identitas Pembeli -->
   <?php if ($role === 'start'): ?>
-  <header class="border-b border-slate-200 bg-white">
-    <div class="mx-auto flex max-w-7xl items-center px-4 py-3">
-      <span class="flex items-center gap-2.5 text-lg font-bold tracking-tight text-slate-900"><span
-          class="grid size-9 place-items-center rounded-xl bg-blue-600 text-lg font-extrabold text-white">F</span><span>Food
-          Court</span></span>
-    </div>
-  </header>
+    <header class="border-b border-slate-200 bg-white">
+      <div class="mx-auto flex max-w-7xl items-center px-4 py-3">
+        <span class="flex items-center gap-2.5 text-lg font-bold tracking-tight text-slate-900"><span
+            class="grid size-9 place-items-center rounded-xl bg-blue-600 text-lg font-extrabold text-white">F</span><span>Food
+            Court</span></span>
+      </div>
+    </header>
 
   <?php elseif ($role === 'buyer'):
     $sesi  = sesi_pembeli();
@@ -82,39 +82,39 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
       'status' => ['pages/buyer/status.php', 'Status Pesanan'],
     ];
   ?>
-  <header class="sticky top-0 z-40 border-b border-slate-200 bg-white">
-    <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 px-4 pt-3 md:flex-nowrap md:py-3">
-      <a href="<?= url('pages/buyer/menu.php') ?>"
-        class="flex items-center gap-2.5 text-lg font-bold tracking-tight text-slate-900">
-        <span
-          class="grid size-9 place-items-center rounded-xl bg-blue-600 text-lg font-extrabold text-white">F</span><span>Food
-          Court</span>
-      </a>
+    <header class="sticky top-0 z-40 border-b border-slate-200 bg-white">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 px-4 pt-3 md:flex-nowrap md:py-3">
+        <a href="<?= url('pages/buyer/menu.php') ?>"
+          class="flex items-center gap-2.5 text-lg font-bold tracking-tight text-slate-900">
+          <span
+            class="grid size-9 place-items-center rounded-xl bg-blue-600 text-lg font-extrabold text-white">F</span><span>Food
+            Court</span>
+        </a>
 
-      <!-- Navigasi Menu Pelanggan -->
-      <nav aria-label="Navigasi utama"
-        class="order-3 -mx-4 mt-2 flex w-[calc(100%+2rem)] border-t border-slate-100 px-4 text-sm font-medium md:order-none md:mx-0 md:ml-6 md:mt-0 md:w-auto md:gap-1 md:border-0 md:px-0">
-        <?php foreach ($menuPembeli as $kunci => [$tujuan, $label]): ?>
-        <a href="<?= url($tujuan) ?>" <?= $active === $kunci ? ' aria-current="page"' : '' ?>
-          class="flex-1 border-b-2 border-transparent px-3 py-3 text-center text-slate-500 hover:text-slate-900 aria-[current=page]:border-blue-600 aria-[current=page]:text-blue-600 md:flex-none md:rounded-lg md:border-0 md:py-2 md:aria-[current=page]:bg-blue-50"><?= $label ?></a>
-        <?php endforeach; ?>
-      </nav>
+        <!-- Navigasi Menu Pelanggan -->
+        <nav aria-label="Navigasi utama"
+          class="order-3 -mx-4 mt-2 flex w-[calc(100%+2rem)] border-t border-slate-100 px-4 text-sm font-medium md:order-none md:mx-0 md:ml-6 md:mt-0 md:w-auto md:gap-1 md:border-0 md:px-0">
+          <?php foreach ($menuPembeli as $kunci => [$tujuan, $label]): ?>
+            <a href="<?= url($tujuan) ?>" <?= $active === $kunci ? ' aria-current="page"' : '' ?>
+              class="flex-1 border-b-2 border-transparent px-3 py-3 text-center text-slate-500 hover:text-slate-900 aria-[current=page]:border-blue-600 aria-[current=page]:text-blue-600 md:flex-none md:rounded-lg md:border-0 md:py-2 md:aria-[current=page]:bg-blue-50"><?= $label ?></a>
+          <?php endforeach; ?>
+        </nav>
 
-      <!-- Informasi Pelanggan-->
-      <div class="ml-auto flex items-center gap-2">
-        <p
-          class="whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-700">
-          Meja No. <span data-pemesan-meja><?= e($sesi['no_meja'] ?? '-') ?></span></p>
-        <p class="flex items-center gap-2 text-sm font-medium text-slate-700">
-          <span class="grid size-8 place-items-center rounded-full bg-slate-100 text-xs font-bold text-slate-600"
-            aria-hidden="true"><span data-pemesan-inisial><?= e(strtoupper(substr($nama, 0, 1))) ?></span></span>
-          <span class="hidden sm:inline"><span data-pemesan-nama><?= e($nama) ?></span></span>
-        </p>
+        <!-- Informasi Pelanggan-->
+        <div class="ml-auto flex items-center gap-2">
+          <p
+            class="whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-700">
+            Meja No. <span data-pemesan-meja><?= e($sesi['no_meja'] ?? '-') ?></span></p>
+          <p class="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <span class="grid size-8 place-items-center rounded-full bg-slate-100 text-xs font-bold text-slate-600"
+              aria-hidden="true"><span data-pemesan-inisial><?= e(strtoupper(substr($nama, 0, 1))) ?></span></span>
+            <span class="hidden sm:inline"><span data-pemesan-nama><?= e($nama) ?></span></span>
+          </p>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Header Penjual || Admin -->
+    <!-- Header Penjual || Admin -->
   <?php elseif ($role === 'seller' || $role === 'admin'):
     $penjual = $role === 'seller';
     $menuStaf = $penjual
@@ -133,48 +133,48 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
     $tenantBuka = $penjual && strtolower((string) ($tenant['status_tenant'] ?? '')) === 'buka';
   ?>
 
-  <!-- Ditambahkan class `print:hidden` agar header tidak ikut tercetak saat cetak nota/laporan -->
-  <header class="sticky top-0 z-40 border-b border-line/70 bg-white print:hidden">
-    <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 px-4 pt-3 lg:flex-nowrap lg:py-3">
-      <a href="<?= url($beranda) ?>" class="flex shrink-0 items-center gap-3 whitespace-nowrap">
-        <span class="grid size-10 place-items-center rounded-xl bg-primary text-white"><?= $ikon['garpu'] ?></span>
-        <span class="leading-tight"><span class="block text-base font-extrabold text-ink">Food Court</span><span
-            class="block text-[11px] text-muted"><?= $penjual ? 'Portal Penjual' : 'Portal Admin' ?></span></span>
-      </a>
-      <!-- Navigasi Penjual -->
-      <nav aria-label="Navigasi utama"
-        class="order-3 -mx-4 mt-2 flex w-[calc(100%+2rem)] border-t border-line/60 px-4 text-sm font-semibold lg:order-none lg:mx-0 lg:ml-auto lg:mt-0 lg:w-auto lg:border-0 lg:px-0">
-        <?php foreach ($menuStaf as $kunci => [$tujuan, $label]): ?>
-        <a href="<?= url($tujuan) ?>" <?= $active === $kunci ? ' aria-current="page"' : '' ?>
-          class="flex-1 border-b-2 border-transparent whitespace-nowrap px-1 py-3 text-center text-muted hover:text-primary aria-[current=page]:border-primary aria-[current=page]:text-primary lg:flex-none lg:px-1 lg:py-2 lg:mx-3"><?= $label ?></a>
-        <?php endforeach; ?>
-      </nav>
-      <div class="ml-auto flex items-center gap-3 lg:ml-auto">
-        <?php if ($penjual): ?>
-        <span
-          class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide <?= $tenantBuka ? 'bg-ok-soft text-ok' : 'bg-danger-soft text-danger' ?>"><span
-            class="size-1.5 rounded-full <?= $tenantBuka ? 'bg-ok' : 'bg-danger' ?>"></span><span><span
-              class="hidden sm:inline">Tenant
-            </span><?= $tenantBuka ? 'Buka' : 'Tutup' ?></span></span>
-        <p
-          class="hidden items-center gap-3 whitespace-nowrap border-l border-line pl-3 text-right text-sm leading-tight lg:flex">
-          <span><span class="block font-bold text-ink"><?= e($tenant['nama_tenant'] ?? '-') ?></span><span
-              class="block text-xs text-muted">Tenant #<?= (int) ($tenant['id_tenant'] ?? 0) ?></span></span>
-          <span class="grid size-9 place-items-center rounded-full bg-primary text-white"><?= $ikon['akun'] ?></span>
-        </p>
-        <?php else: ?>
-        <p class="flex items-center gap-3 text-right text-sm leading-tight">
-          <span class="hidden sm:block"><span
-              class="block font-bold text-ink"><?= e(user()['nama'] ?? 'Admin') ?></span><span
-              class="block text-xs text-muted">Food Court</span></span>
-          <span class="grid size-9 place-items-center rounded-full bg-primary text-white"><?= $ikon['akun'] ?></span>
-        </p>
-        <?php endif; ?>
-        <!-- Satu tombol logout saja, pakai url() supaya tidak hardcode /PBL-ceria -->
-        <a href="<?= url('pages/auth/handlers/logout.php') ?>" aria-label="Keluar" title="Keluar"
-          class="grid size-10 place-items-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger"><?= $ikon['keluar'] ?></a>
+    <!-- Ditambahkan class `print:hidden` agar header tidak ikut tercetak saat cetak nota/laporan -->
+    <header class="sticky top-0 z-40 border-b border-line/70 bg-white print:hidden">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 px-4 pt-3 lg:flex-nowrap lg:py-3">
+        <a href="<?= url($beranda) ?>" class="flex shrink-0 items-center gap-3 whitespace-nowrap">
+          <span class="grid size-10 place-items-center rounded-xl bg-primary text-white"><?= $ikon['garpu'] ?></span>
+          <span class="leading-tight"><span class="block text-base font-extrabold text-ink">Food Court</span><span
+              class="block text-[11px] text-muted"><?= $penjual ? 'Portal Penjual' : 'Portal Admin' ?></span></span>
+        </a>
+        <!-- Navigasi Penjual -->
+        <nav aria-label="Navigasi utama"
+          class="order-3 -mx-4 mt-2 flex w-[calc(100%+2rem)] border-t border-line/60 px-4 text-sm font-semibold lg:order-none lg:mx-0 lg:ml-auto lg:mt-0 lg:w-auto lg:border-0 lg:px-0">
+          <?php foreach ($menuStaf as $kunci => [$tujuan, $label]): ?>
+            <a href="<?= url($tujuan) ?>" <?= $active === $kunci ? ' aria-current="page"' : '' ?>
+              class="flex-1 border-b-2 border-transparent whitespace-nowrap px-1 py-3 text-center text-muted hover:text-primary aria-[current=page]:border-primary aria-[current=page]:text-primary lg:flex-none lg:px-1 lg:py-2 lg:mx-3"><?= $label ?></a>
+          <?php endforeach; ?>
+        </nav>
+        <div class="ml-auto flex items-center gap-3 lg:ml-auto">
+          <?php if ($penjual): ?>
+            <span
+              class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide <?= $tenantBuka ? 'bg-ok-soft text-ok' : 'bg-danger-soft text-danger' ?>"><span
+                class="size-1.5 rounded-full <?= $tenantBuka ? 'bg-ok' : 'bg-danger' ?>"></span><span><span
+                  class="hidden sm:inline">Tenant
+                </span><?= $tenantBuka ? 'Buka' : 'Tutup' ?></span></span>
+            <p
+              class="hidden items-center gap-3 whitespace-nowrap border-l border-line pl-3 text-right text-sm leading-tight lg:flex">
+              <span><span class="block font-bold text-ink"><?= e($tenant['nama_tenant'] ?? '-') ?></span><span
+                  class="block text-xs text-muted">Tenant #<?= (int) ($tenant['id_tenant'] ?? 0) ?></span></span>
+              <span class="grid size-9 place-items-center rounded-full bg-primary text-white"><?= $ikon['akun'] ?></span>
+            </p>
+          <?php else: ?>
+            <p class="flex items-center gap-3 text-right text-sm leading-tight">
+              <span class="hidden sm:block"><span
+                  class="block font-bold text-ink"><?= e(user()['nama'] ?? 'Admin') ?></span><span
+                  class="block text-xs text-muted">Food Court</span></span>
+              <span class="grid size-9 place-items-center rounded-full bg-primary text-white"><?= $ikon['akun'] ?></span>
+            </p>
+          <?php endif; ?>
+          <!-- Satu tombol logout saja, pakai url() supaya tidak hardcode /PBL-ceria -->
+          <a href="<?= url('pages/auth/handlers/logout.php') ?>" aria-label="Keluar" title="Keluar"
+            class="grid size-10 place-items-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger"><?= $ikon['keluar'] ?></a>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
 
   <?php endif; ?>
