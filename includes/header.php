@@ -125,7 +125,7 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
       ]
       : [
         'tenants'    => ['pages/admin/tenant.php',    'Daftar Tenant'],
-        'tenant_add' => ['pages/admin/tambahkan_tenant.php', 'Tambah Tenant'],
+        'tenant_add' => ['pages/admin/tambah.php', 'Tambah Tenant'],
       ];
     $beranda = $penjual ? 'pages/seller/dashboard/pesanan_masuk.php' : 'pages/admin/tenant.php';
 
