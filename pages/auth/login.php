@@ -15,7 +15,7 @@ require __DIR__ . '/../../includes/header.php';
 
       <form id="formLogin" action="handlers/login_process.php" method="post" class="space-y-4">
         
-        <!--Input email-->
+        <!--Input Email-->
         <p><label for="email" class="mb-1.5 block text-sm font-semibold text-ink">Email</label>
           <input type="email" id="email" name="email" required autocomplete="username" placeholder="nama@email.com" class="h-11 w-full rounded-lg border border-outline bg-white px-3 text-base text-ink placeholder:text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"></p>
 
