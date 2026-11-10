@@ -54,7 +54,7 @@ try {
   // exit;
 
   if ($pengguna['role'] === 'seller') {
-    header('Location: ../../seller/dashboard.php');
+    header('Location: ../../seller/dashboard/kelola_menu.php');
     exit;
   }
 
