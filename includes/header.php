@@ -55,7 +55,7 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
 
 <body class="min-h-screen bg-surface font-sans text-ink antialiased">
 
-  <!-- Header Start / Identitas Awal -->
+  <!-- Identitas-->
   <?php if ($role === 'start'): ?>
     <header class="border-b border-line/70 bg-white print:hidden">
       <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
