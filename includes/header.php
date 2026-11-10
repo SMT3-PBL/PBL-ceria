@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/init.php';
 
-$role       = $role ?? 'buyer';
-$active     = $active ?? '';
+$role      = $role ?? 'buyer';
+$active    = $active ?? '';
 $pageTitle  = $pageTitle ?? 'Food Court';
 $buyerTheme = in_array($role, ['buyer', 'start'], true);
 
@@ -58,11 +58,19 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
   <!-- Header Start / Identitas Awal -->
   <?php if ($role === 'start'): ?>
     <header class="border-b border-line/70 bg-white print:hidden">
-      <div class="mx-auto flex max-w-7xl items-center px-4 py-3">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         <span class="flex items-center gap-3 text-lg font-bold tracking-tight text-ink">
           <span class="grid size-10 place-items-center rounded-xl bg-primary text-white"><?= $ikon['garpu'] ?></span>
           <span>Food Court</span>
         </span>
+
+        <!-- Tombol Login Admin / Penjual di Pojok Kanan Atas -->
+        <div>
+          <a href="<?= url('pages/auth/login.php') ?>" 
+             class="inline-flex items-center justify-center rounded-lg border border-line bg-surface px-3.5 py-2 text-xs font-semibold text-ink transition hover:bg-line sm:text-sm">
+            Login
+          </a>
+        </div>
       </div>
     </header>
 
