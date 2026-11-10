@@ -41,38 +41,7 @@ unset($_SESSION['errors'], $_SESSION['old']);
 
 <body class="bg-page font-sans text-ink min-h-screen">
 
-  <header class="bg-white border-b border-slate-100">
-    <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-lg bg-brand flex items-center justify-center">
-          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5M9 3v5M17 3c-2 2-2 6 0 8v10" />
-          </svg>
-        </div>
-        <div class="leading-tight">
-          <p class="text-sm font-bold">Food Court Admin</p>
-          <p class="text-[10px] text-slate-500">Portal Administrator</p>
-        </div>
-      </div>
-      <nav class="flex items-center gap-8 text-xs font-medium">
-        <a href="dashboard.php" class="text-slate-600 hover:text-brand py-4">Daftar Tenant</a>
-        <a href="tambah.php" class="text-brand border-b-2 border-brand py-4">Tambah Tenant</a>
-      </nav>
-      <div class="flex items-center gap-2.5">
-        <div class="text-right leading-tight">
-          <p class="text-xs font-bold">Administrator</p>
-          <p class="text-[10px] text-slate-500">Food Court</p>
-        </div>
-        <div class="w-9 h-9 rounded-full bg-brand flex items-center justify-center">
-          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM4 21a8 8 0 0 1 16 0" />
-          </svg>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <main class="w-full max-w-[400px] mx-auto px-4 py-8">
+  <main class="w-full max-w-[400px] mx-auto px-4 py-5">
     <h1 class="text-2xl font-extrabold mb-4">Daftarkan Tenant Baru</h1>
 
     <?php if ($errors): ?>
@@ -120,7 +89,7 @@ unset($_SESSION['errors'], $_SESSION['old']);
 
       <div class="flex items-center justify-end gap-5 pt-1">
         <a href="dashboard.php" class="text-xs font-medium text-slate-600 hover:text-ink">Batal</a>
-        <button type="submit" class="bg-brand hover:bg-blue-800 text-white text-xs font-semibold rounded-lg px-6 py-2.5 transition">Simpan</button>
+<button type="submit" class="bg-blue-600 hover:bg-blue-800 text-white text-xs font-semibold rounded-lg px-6 py-2.5 transition">Simpan</button>
       </div>
     </form>
   </main>
