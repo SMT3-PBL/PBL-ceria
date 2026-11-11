@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/../../includes/init.php';
+$pageTitle = 'Daftar Tenant';
+$role      = 'admin';
+$active    = 'tenants';
 require_once BASE_PATH . '/includes/header.php';
 require_once BASE_PATH . '/models/Tenant.php';
 

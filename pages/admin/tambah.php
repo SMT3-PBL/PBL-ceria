@@ -3,6 +3,9 @@
 // Tugas file ini: MENAMPILKAN form. Pemrosesan ada di handlers/tambah_process.php
 
 require_once __DIR__ . '/../../includes/init.php';
+$pageTitle = 'Daftar Tenant';
+$role      = 'admin';
+$active    = 'tenants';
 require_once BASE_PATH . '/includes/header.php';
 // echo '<pre>'; var_dump($_SESSION); exit;
 
