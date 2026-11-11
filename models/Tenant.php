@@ -158,41 +158,65 @@ class Tenant
         return $stmt->fetch() ? true : false;
     }
 
- public function hapus($id_tenant) {
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+public function hapus($id_tenant) {
         try {
-            // 1. SABUK PENGAMAN DIAKTIFKAN KEMBALI
+            // Sabuk pengaman dihidupkan
             $this->pdo->beginTransaction();
 
             $stmtInfo = $this->pdo->prepare("SELECT id_pengguna, qr_pembayaran FROM tenant WHERE id_tenant = ?");
-            $stmtInfo->execute([$id_tenant]);
+            if (!$stmtInfo->execute([$id_tenant])) {
+                throw new Exception("Gagal mengambil info Tenant.");
+            }
             $info = $stmtInfo->fetch(PDO::FETCH_ASSOC);
 
             if (!$info) {
-                if ($this->pdo->inTransaction()) {
-                    $this->pdo->rollBack();
-                }
+                $this->pdo->rollBack();
                 return false; 
             }
 
-            // 2. HAPUS DATA ANAK
-            $this->pdo->prepare("DELETE FROM detail_pesanan WHERE id_pesanan IN (SELECT id_pesanan FROM pesanan WHERE id_tenant = ?)")->execute([$id_tenant]);
-            $this->pdo->prepare("DELETE FROM pembayaran WHERE id_pesanan IN (SELECT id_pesanan FROM pesanan WHERE id_tenant = ?)")->execute([$id_tenant]);
-            $this->pdo->prepare("DELETE FROM pesanan WHERE id_tenant = ?")->execute([$id_tenant]);
-            $this->pdo->prepare("DELETE FROM menu WHERE id_tenant = ?")->execute([$id_tenant]);
+            // === PELACAK ERROR MANUAL ===
+            
+            // 1. Hapus Detail Pesanan
+            $stmt1 = $this->pdo->prepare("DELETE FROM detail_pesanan WHERE id_pesanan IN (SELECT id_pesanan FROM pesanan WHERE id_tenant = ?)");
+            if (!$stmt1->execute([$id_tenant])) {
+                throw new Exception("Error di tabel detail_pesanan: " . $stmt1->errorInfo()[2]);
+            }
 
-            // 3. HAPUS DATA INDUK
-            $this->pdo->prepare("DELETE FROM tenant WHERE id_tenant = ?")->execute([$id_tenant]);
-            $this->pdo->prepare("DELETE FROM pengguna WHERE id_pengguna = ?")->execute([$info['id_pengguna']]);
+            // 2. Hapus Pembayaran
+            $stmt2 = $this->pdo->prepare("DELETE FROM pembayaran WHERE id_pesanan IN (SELECT id_pesanan FROM pesanan WHERE id_tenant = ?)");
+            if (!$stmt2->execute([$id_tenant])) {
+                throw new Exception("Error di tabel pembayaran: " . $stmt2->errorInfo()[2]);
+            }
 
-            // 4. SIMPAN PERUBAHAN SECARA PERMANEN
+            // 3. Hapus Pesanan
+            $stmt3 = $this->pdo->prepare("DELETE FROM pesanan WHERE id_tenant = ?");
+            if (!$stmt3->execute([$id_tenant])) {
+                throw new Exception("Error di tabel pesanan: " . $stmt3->errorInfo()[2]);
+            }
+
+            // 4. Hapus Menu
+            $stmt4 = $this->pdo->prepare("DELETE FROM menu WHERE id_tenant = ?");
+            if (!$stmt4->execute([$id_tenant])) {
+                throw new Exception("Error di tabel menu: " . $stmt4->errorInfo()[2]);
+            }
+
+            // 5. Hapus Tenant
+            $stmt5 = $this->pdo->prepare("DELETE FROM tenant WHERE id_tenant = ?");
+            if (!$stmt5->execute([$id_tenant])) {
+                throw new Exception("Error di tabel tenant: " . $stmt5->errorInfo()[2]);
+            }
+
+            // 6. Hapus Pengguna
+            $stmt6 = $this->pdo->prepare("DELETE FROM pengguna WHERE id_pengguna = ?");
+            if (!$stmt6->execute([$info['id_pengguna']])) {
+                throw new Exception("Error di tabel pengguna: " . $stmt6->errorInfo()[2]);
+            }
+
+            // Jika ke-6 langkah di atas lolos tanpa error, simpan permanen
             $this->pdo->commit();
-
             return $info['qr_pembayaran'];
 
         } catch (Throwable $e) {
-            // 5. BATALKAN SEMUA PENGHAPUSAN JIKA ADA 1 SAJA YANG GAGAL
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
