@@ -12,11 +12,10 @@ require __DIR__ . '/../../includes/header.php';
     </div>
 
     <section class="rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(11,28,48,0.06)] ring-1 ring-line/60 sm:p-6 sm:!p-8">
-      <h1 class="text-2xl font-extrabold tracking-tight text-center">Login</h1>
 
       <form id="formLogin" action="handlers/login_process.php" method="post" class="space-y-4">
         
-        <!--Input email-->
+        <!--Input Email-->
         <p><label for="email" class="mb-1.5 block text-sm font-semibold text-ink">Email</label>
           <input type="email" id="email" name="email" required autocomplete="username" placeholder="nama@email.com" class="h-11 w-full rounded-lg border border-outline bg-white px-3 text-base text-ink placeholder:text-muted/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"></p>
 
