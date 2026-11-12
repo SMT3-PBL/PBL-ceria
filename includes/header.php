@@ -131,8 +131,8 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
         'reports' => ['pages/seller/laporan.php', 'Laporan<span class="hidden sm:inline"> Penjualan</span>'],
       ]
       : [
-        'tenants'    => ['pages/admin/tenant.php',    'Daftar Tenant'],
-        'tenant_add' => ['pages/admin/tambahkan_tenant.php', 'Tambah Tenant'],
+        'tenants'    => ['pages/admin/dashboard.php',    'Daftar Tenant'],
+        'tenant_add' => ['pages/admin/tambah.php', 'Tambah Tenant'],
       ];
     $beranda = $penjual ? 'pages/seller/pesanan_masuk.php' : 'pages/admin/tenant.php';
     $tenantBuka = $penjual && strtolower((string) ($tenant['status_tenant'] ?? '')) === 'buka';
