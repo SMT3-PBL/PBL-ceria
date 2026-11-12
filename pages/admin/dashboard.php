@@ -1,5 +1,11 @@
 <?php
 require_once __DIR__ . '/../../includes/init.php';
+// Proteksi halaman: hanya admin
+$role = $_SESSION['user_role'] ?? null;
+if ($role !== 'admin') {
+  header('Location: ../auth/login.php');
+  exit;
+}
 $pageTitle = 'Daftar Tenant';
 $role      = 'admin';
 $active    = 'tenants';
@@ -11,13 +17,7 @@ $tenantModel = new Tenant($pdo);
 // Asumsi kamu memiliki fungsi getAll() di model Tenant.php
 $daftarTenant = $tenantModel->semua();
 
-// // Proteksi halaman: hanya admin
-// $role = $_SESSION['user_role'] ?? null;
-// if ($role !== 'admin') {
-//   header('Location: ../auth/login.php');
-//   exit;
-// }
-// ?>
+?>
 
 <main class="mx-auto max-w-6xl space-y-5 p-4 pb-10 sm:p-6">
   <div>
