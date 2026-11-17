@@ -1,49 +1,47 @@
 <?php
-// pages/buyer/handlers/keranjang.php
 require_once __DIR__ . '/../../../includes/init.php';
+require_once __DIR__ . '/../../../models/Menu.php';
 
-// Inisialisasi keranjang di session jika belum ada
+$menuModel = new Menu($pdo);
+
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// Proses jika ada aksi tambah/kurang dari form POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $id_menu = $_POST['id_menu'] ?? null;
-    $nama_menu = $_POST['nama_menu'] ?? '';
-    $harga = (int)($_POST['harga'] ?? 0);
-    $id_tenant = $_POST['id_tenant'] ?? 1;
-    $kategori = $_POST['kategori'] ?? 'Semua Menu';
+$id_menu   = (int)($_POST['id_menu'] ?? 0);
+$id_tenant = (int)($_POST['id_tenant'] ?? 0);
+$kategori  = $_POST['kategori'] ?? 'Semua Menu';
+$action    = $_POST['action'] ?? '';
 
-    // Set tenant aktif di session keranjang
-    $_SESSION['cart_tenant'] = $id_tenant;
+if ($action === 'add') {
+    $menu = $menuModel->getMenuById((string)$id_menu);
 
-    if ($action === 'add' && $id_menu) {
-        if (isset($_SESSION['cart'][$id_menu])) {
-            $_SESSION['cart'][$id_menu]['jumlah'] += 1;
-        } else {
-            $_SESSION['cart'][$id_menu] = [
-                'id_menu' => $id_menu,
-                'nama_menu' => $nama_menu,
-                'harga' => $harga,
-                'jumlah' => 1
-            ];
-        }
-    } elseif ($action === 'decrease' && $id_menu) {
-        if (isset($_SESSION['cart'][$id_menu])) {
-            $_SESSION['cart'][$id_menu]['jumlah'] -= 1;
-            if ($_SESSION['cart'][$id_menu]['jumlah'] <= 0) {
-                unset($_SESSION['cart'][$id_menu]);
+    if ($menu) {
+        // Kalau keranjang berisi tenant lain (atau item lama tanpa id_tenant), kosongkan dulu
+        foreach ($_SESSION['cart'] as $item) {
+            if ((int)($item['id_tenant'] ?? 0) !== (int)$menu['id_tenant']) {
+                $_SESSION['cart'] = [];
+                break;
             }
         }
+
+        if (isset($_SESSION['cart'][$id_menu])) {
+            $_SESSION['cart'][$id_menu]['jumlah']++;
+        } else {
+            $_SESSION['cart'][$id_menu] = [
+                'nama_menu' => $menu['nama_menu'],
+                'harga'     => $menu['harga'],
+                'id_tenant' => (int)$menu['id_tenant'],
+                'jumlah'    => 1,
+            ];
+        }
     }
-    
-    // Redirect kembali ke halaman pilih_menu.php dengan tenant dan kategori aktif
-    header("Location: ../pilih_menu.php?tenant=" . $id_tenant . "&kategori=" . urlencode($kategori));
-    exit;
+} elseif ($action === 'decrease' && isset($_SESSION['cart'][$id_menu])) {
+    $_SESSION['cart'][$id_menu]['jumlah']--;
+    if ($_SESSION['cart'][$id_menu]['jumlah'] <= 0) {
+        unset($_SESSION['cart'][$id_menu]);
+    }
 }
 
-// Jika diakses langsung tanpa POST, kembalikan ke halaman pilih menu utama
-header("Location: ../pilih_menu.php");
+header('Location: ../pilih_menu.php?tenant=' . $id_tenant . '&kategori=' . urlencode($kategori));
 exit;
