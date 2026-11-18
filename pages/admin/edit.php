@@ -1,10 +1,10 @@
 <?php
+require_once __DIR__ . '/../../includes/init.php';
 $id_tenant = $_GET['id'] ?? null;
 if (!$id_tenant) {
   header("Location: dashboard.php");
   exit;
 }
-require_once __DIR__ . '/../../includes/init.php';
 $pageTitle = 'Daftar Tenant';
 $role      = 'admin';
 $active    = 'tenants';

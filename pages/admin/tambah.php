@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../includes/init.php';
 // Proteksi halaman: hanya admin
 $role = $_SESSION['user_role'] ?? null;
 if ($role !== 'admin') {
@@ -6,7 +7,6 @@ if ($role !== 'admin') {
   exit;
 }
 
-require_once __DIR__ . '/../../includes/init.php';
 $pageTitle = 'Daftar Tenant';
 $role      = 'admin';
 $active    = 'tenant_add';
