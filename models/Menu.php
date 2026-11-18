@@ -20,7 +20,7 @@ class Menu {
   }
 
   public function getMenuById(string $id) {
-    $sql = "SELECT * FROM menu WHERE id = :id";
+    $sql = "SELECT * FROM menu WHERE id_menu = :id";
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute(["id" => $id]);
 
