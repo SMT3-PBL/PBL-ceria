@@ -1,4 +1,9 @@
 <?php
+$id_tenant = $_GET['id'] ?? null;
+if (!$id_tenant) {
+  header("Location: dashboard.php");
+  exit;
+}
 require_once __DIR__ . '/../../includes/init.php';
 $pageTitle = 'Daftar Tenant';
 $role      = 'admin';
@@ -6,11 +11,6 @@ $active    = 'tenants';
 require_once BASE_PATH . '/includes/header.php';
 require_once BASE_PATH . '/models/Tenant.php';
 
-$id_tenant = $_GET['id'] ?? null;
-if (!$id_tenant) {
-  header("Location: dashboard.php");
-  exit;
-}
 
 $tenantModel = new Tenant($pdo);
 $tenant = $tenantModel->getById($id_tenant);
@@ -19,33 +19,6 @@ if (!$tenant) {
   die("Data Tenant tidak ditemukan.");
 }
 ?>
-
-<!-- <!DOCTYPE html>
-<html lang="id">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Edit Tenant - Food Court Admin</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif']
-          },
-          colors: {
-            brand: '#0B4FD1',
-            ink: '#0F1F3D',
-            page: '#F5F7FC'
-          }
-        }
-      }
-    }
-  </script>
-</head> -->
 
 <body class="bg-page font-sans text-ink min-h-screen">
 

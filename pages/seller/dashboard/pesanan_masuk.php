@@ -326,6 +326,7 @@ require __DIR__ . '/../../../includes/header.php';
     </div>
   </aside>
   <?php endif; ?>
+
 </main>
 
 <script>

@@ -1,20 +1,16 @@
 <?php
-// pages/admin/tambah.php
-// Tugas file ini: MENAMPILKAN form. Pemrosesan ada di handlers/tambah_process.php
-
-require_once __DIR__ . '/../../includes/init.php';
-$pageTitle = 'Daftar Tenant';
-$role      = 'admin';
-$active    = 'tenants';
-require_once BASE_PATH . '/includes/header.php';
-// echo '<pre>'; var_dump($_SESSION); exit;
-
 // Proteksi halaman: hanya admin
 $role = $_SESSION['user_role'] ?? null;
 if ($role !== 'admin') {
   header('Location: ../auth/login.php');
   exit;
 }
+
+require_once __DIR__ . '/../../includes/init.php';
+$pageTitle = 'Daftar Tenant';
+$role      = 'admin';
+$active    = 'tenant_add';
+require_once BASE_PATH . '/includes/header.php';
 
 // Fungsi untuk mengamankan teks sebelum dicetak ke HTML (cegah XSS)
 function e($v)
@@ -27,20 +23,7 @@ $errors = $_SESSION['errors'] ?? [];
 $old    = $_SESSION['old'] ?? ['nama_tenant' => '', 'nama_penjual' => '', 'email' => ''];
 unset($_SESSION['errors'], $_SESSION['old']);
 ?>
-<!-- <!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tambah Tenant - Food Court Admin</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = { theme: { extend: {
-      fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
-      colors: { brand: '#0B4FD1', ink: '#0F1F3D', page: '#F5F7FC' } } } }
-  </script>
-</head> -->
+
 
 <body class="bg-page font-sans text-ink min-h-screen">
 
@@ -92,7 +75,7 @@ unset($_SESSION['errors'], $_SESSION['old']);
 
       <div class="flex items-center justify-end gap-5 pt-1">
         <a href="dashboard.php" class="text-xs font-medium text-slate-600 hover:text-ink">Batal</a>
-<button type="submit" class="bg-blue-600 hover:bg-blue-800 text-white text-xs font-semibold rounded-lg px-6 py-2.5 transition">Simpan</button>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-800 text-white text-xs font-semibold rounded-lg px-6 py-2.5 transition">Simpan</button>
       </div>
     </form>
   </main>

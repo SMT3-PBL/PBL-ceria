@@ -126,9 +126,9 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
     $penjual = $role === 'seller';
     $menuStaf = $penjual
       ? [
-        'orders'  => ['pages/seller/pesanan_masuk.php',  'Pesanan Masuk'],
-        'menus'   => ['pages/seller/kelola_menu.php',   'Kelola Menu'],
-        'reports' => ['pages/seller/laporan.php', 'Laporan<span class="hidden sm:inline"> Penjualan</span>'],
+        'orders'  => ['pages/seller/dashboard/pesanan_masuk.php',  'Pesanan Masuk'],
+        'menus'   => ['pages/seller/dashboard/kelola_menu.php',   'Kelola Menu'],
+        'reports' => ['pages/seller/dashboard/laporan_penjualan.php', 'Laporan<span class="hidden sm:inline"> Penjualan</span>'],
       ]
       : [
         'tenants'    => ['pages/admin/dashboard.php',    'Daftar Tenant'],
