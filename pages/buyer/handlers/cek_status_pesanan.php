@@ -1,23 +1,23 @@
 <?php
+// pages/buyer/handlers/cek_status_pesanan.php
 require_once __DIR__ . '/../../../includes/init.php';
+require_once __DIR__ . '/../../../models/Pesanan.php';
 
 header('Content-Type: application/json');
 
-$id_pesanan = $_GET['id_pesanan'] ?? null;
-if (!$id_pesanan) {
-  echo json_encode(['success' => false, 'message' => 'ID pesanan tidak valid']);
+$sesi   = sesi_pembeli();
+$idSesi = (int) ($sesi['id_sesi'] ?? 0);
+
+if ($idSesi <= 0) {
+  http_response_code(403);
+  echo json_encode(['success' => false, 'message' => 'Sesi pembeli tidak ditemukan']);
   exit;
 }
 
-$stmt = $pdo->prepare("SELECT status_pesanan FROM pesanan WHERE id_pesanan = ?");
-$stmt->execute([$id_pesanan]);
-$data = $stmt->fetch();
+// Hanya pesanan milik sesi ini (semua tenant)
+$daftar = Pesanan::daftarBySesi($pdo, $idSesi);
 
-if ($data) {
-  echo json_encode([
-    'success' => true,
-    'status_pesanan' => $data['status_pesanan']
-  ]);
-} else {
-  echo json_encode(['success' => false, 'message' => 'Data tidak ditemukan']);
-}
+echo json_encode([
+  'success' => true,
+  'tanda'   => Pesanan::tandaDari($daftar),
+]);

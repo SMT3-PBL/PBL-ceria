@@ -9,203 +9,224 @@ $active    = 'status';
 
 require __DIR__ . '/../../includes/header.php';
 
-$sesi = sesi_pembeli();
+$sesi   = sesi_pembeli();
 $idSesi = (int) ($sesi['id_sesi'] ?? 0);
 
-// Parameter 'id_pesanan' dari URL (opsional)
-$id_pesanan = (int) (filter_var(
+// Pesanan yang baru dibuat (opsional) -> disorot
+$fokusId = (int) (filter_var(
   $_GET['id_pesanan'] ?? null,
   FILTER_VALIDATE_INT,
   ['options' => ['min_range' => 1]]
 ) ?: 0);
 
-$pesanan = $id_pesanan > 0
-  ? Pesanan::byIdUntukSesi($pdo, $id_pesanan, $idSesi)
-  : Pesanan::terakhirBySesi($pdo, $idSesi);
+$semua = $idSesi > 0 ? Pesanan::daftarBySesi($pdo, $idSesi) : [];
 
-if (!$pesanan) {
-  echo '<main class="max-w-4xl mx-auto p-6 text-center"><div class="p-6 bg-white rounded-2xl shadow-sm border border-slate-200"><h1 class="text-lg font-bold text-slate-800">Belum ada pesanan aktif</h1><p class="text-sm text-slate-500 mt-1">Silakan lakukan pemesanan terlebih dahulu.</p></div></main>';
+if (!$semua) {
+  echo '<main class="max-w-4xl mx-auto p-6 text-center"><div class="p-6 bg-white rounded-2xl shadow-sm border border-slate-200"><h1 class="text-lg font-bold text-slate-800">Belum ada pesanan</h1><p class="text-sm text-slate-500 mt-1">Silakan lakukan pemesanan terlebih dahulu.</p><a href="' . e(url('pages/buyer/pilih_menu.php')) . '" class="mt-4 inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-dark transition">Pilih Menu</a></div></main>';
   require __DIR__ . '/../../includes/footer.php';
   exit;
 }
 
-// Item pesanan
-$items = Pesanan::item($pdo, (int) $pesanan['id_pesanan']);
-
-// Hitung total harga dari item
-$total_harga = 0;
-foreach ($items as $it) {
-  $total_harga += ($it['subtotal'] ?? ($it['jumlah'] * $it['harga_satuan']));
-}
-
-// ===== Status pesanan =====
-$statusKey   = (string) $pesanan['status_pesanan'];
-$statusLabel = Pesanan::STATUS_LABEL[$statusKey] ?? $statusKey;
-$dibatalkan  = $statusKey === 'dibatalkan';
-$selesai     = $statusKey === 'selesai';
-
-// step 0 = menunggu pembayaran, 1..4 = Diterima..Selesai
-$posisi = array_search($statusKey, Pesanan::TAHAPAN, true);
-$step   = $posisi === false ? 0 : $posisi + 1;
-
-// Teks & warna banner sesuai status
-if ($dibatalkan) {
-  $judul = 'Pesanan Anda Ditolak';
-  $pesan = 'Maaf, tenant tidak dapat memproses pesanan ini. Jika Anda sudah membayar, silakan hubungi tenant untuk pengembalian dana.';
-  $bannerKelas = 'border-rose-200 bg-rose-50';
-  $judulKelas  = 'text-rose-950';
-  $teksKelas   = 'text-rose-800';
-  $badgeKelas  = 'bg-rose-100 text-rose-800';
-} elseif ($selesai) {
-  $judul = 'Pesanan Selesai';
-  $pesan = 'Terima kasih sudah memesan. Selamat menikmati!';
-  $bannerKelas = 'border-emerald-200 bg-emerald-50';
-  $judulKelas  = 'text-emerald-950';
-  $teksKelas   = 'text-emerald-800';
-  $badgeKelas  = 'bg-emerald-100 text-emerald-800';
-} else {
-  if ($statusKey === 'menunggu_pembayaran') {
-    $judul = 'Menunggu Pembayaran';
-    $pesan = 'Pesanan Anda akan diproses setelah tenant mengonfirmasi pembayaran.';
-  } elseif ($statusKey === 'siap_diambil') {
-    $judul = 'Pesanan Anda Siap Diambil!';
-    $pesan = 'Silakan ambil pesanan Anda di loket tenant.';
+// Pisahkan pesanan berjalan dan riwayat (selesai / ditolak)
+$aktif = [];
+$riwayat = [];
+foreach ($semua as $p) {
+  if (in_array($p['status_pesanan'], ['selesai', 'dibatalkan'], true)) {
+    $riwayat[] = $p;
   } else {
-    $judul = 'Pesanan Anda Sedang Diproses!';
-    $pesan = 'Silakan duduk santai di Meja No. ' . ($sesi['no_meja'] ?? '-') . '.';
+    $aktif[] = $p;
   }
-  $bannerKelas = 'border-blue-100 bg-blue-50/70';
-  $judulKelas  = 'text-blue-950';
-  $teksKelas   = 'text-blue-800';
-  $badgeKelas  = 'bg-amber-100 text-amber-800';
 }
+
+$itemPerPesanan = Pesanan::itemBanyak($pdo, array_column($semua, 'id_pesanan'));
+$tandaAwal      = Pesanan::tandaDari($semua);
+$urlCek         = url('pages/buyer/handlers/cek_status_pesanan.php');
+
+// Judul, pesan, dan warna badge sesuai status
+$infoStatus = static function (string $status, array $sesi): array {
+  switch ($status) {
+    case 'menunggu_pembayaran':
+      return ['Menunggu Pembayaran', 'Pesanan akan diproses setelah tenant mengonfirmasi pembayaran.', 'bg-amber-100 text-amber-800'];
+    case 'diterima':
+      return ['Pembayaran Diterima', 'Pesanan Anda sudah diterima tenant dan segera diproses.', 'bg-blue-100 text-blue-800'];
+    case 'diproses':
+      return ['Sedang Diproses', 'Silakan duduk santai di Meja No. ' . ($sesi['no_meja'] ?? '-') . '.', 'bg-blue-100 text-blue-800'];
+    case 'siap_diambil':
+      return ['Siap Diambil!', 'Silakan ambil pesanan Anda di loket tenant.', 'bg-emerald-100 text-emerald-800'];
+    case 'selesai':
+      return ['Selesai', 'Terima kasih sudah memesan. Selamat menikmati!', 'bg-emerald-100 text-emerald-800'];
+    case 'dibatalkan':
+      return ['Ditolak', 'Tenant tidak dapat memproses pesanan ini. Jika sudah membayar, hubungi tenant untuk pengembalian dana.', 'bg-rose-100 text-rose-800'];
+  }
+  return [Pesanan::STATUS_LABEL[$status] ?? $status, '', 'bg-slate-100 text-slate-700'];
+};
+
+$grup = [
+  ['Pesanan Berjalan', $aktif, false],
+  ['Riwayat Pesanan', $riwayat, true],
+];
 ?>
 
-<main class="mx-auto max-w-6xl p-4 pb-20 sm:p-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]" id="status-container"
-  data-id-pesanan="<?= (int) $pesanan['id_pesanan'] ?>">
+<main class="mx-auto max-w-4xl space-y-8 p-4 pb-20 sm:p-6" id="status-container" data-tanda="<?= e($tandaAwal) ?>"
+  data-url-cek="<?= e($urlCek) ?>" data-ada-aktif="<?= $aktif ? '1' : '0' ?>">
 
-  <!-- Section Status Real-Time -->
-  <div class="space-y-6">
-    <!-- Banner Status -->
-    <section
-      class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border <?= $bannerKelas ?> p-5 sm:p-6">
-      <div>
-        <h1 class="text-xl font-bold tracking-tight <?= $judulKelas ?>"><?= e($judul) ?></h1>
-        <p class="mt-1 text-sm <?= $teksKelas ?>"><?= e($pesan) ?>
-          No. Antrean Anda: <b>#<?= e($pesanan['no_antrean']) ?></b>.</p>
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-bold tracking-tight text-slate-900">Status Pesanan</h1>
+      <p class="mt-0.5 text-sm text-slate-500">
+        <?= e($sesi['nama_pembeli'] ?? 'Tamu') ?> · Meja No. <?= e($sesi['no_meja'] ?? '-') ?>
+        · <?= count($semua) ?> pesanan
+      </p>
+    </div>
+    <a href="<?= e(url('pages/buyer/pilih_menu.php')) ?>"
+      class="inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-dark transition">
+      + Pesan Lagi
+    </a>
+  </header>
+
+  <?php foreach ($grup as [$judulGrup, $daftar, $isRiwayat]): ?>
+  <section class="space-y-4">
+    <h2 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+      <?= e($judulGrup) ?>
+      <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600"><?= count($daftar) ?></span>
+    </h2>
+
+    <?php if (!$daftar): ?>
+    <p class="rounded-2xl border border-dashed border-slate-200 bg-white p-5 text-center text-sm text-slate-400">
+      <?= $isRiwayat ? 'Belum ada pesanan yang selesai atau ditolak.' : 'Tidak ada pesanan yang sedang berjalan.' ?>
+    </p>
+    <?php endif; ?>
+
+    <?php foreach ($daftar as $p): ?>
+    <?php
+        $idP         = (int) $p['id_pesanan'];
+        $statusKey   = (string) $p['status_pesanan'];
+        $dibatalkan  = $statusKey === 'dibatalkan';
+        [$judulStatus, $pesanStatus, $badgeKelas] = $infoStatus($statusKey, $sesi);
+        $posisi      = array_search($statusKey, Pesanan::TAHAPAN, true);
+        $step        = $posisi === false ? 0 : $posisi + 1;
+        $items       = $itemPerPesanan[$idP] ?? [];
+        $total       = array_sum(array_map(static fn(array $i): float => (float) $i['subtotal'], $items));
+        $metode      = strtoupper((string) ($p['metode_bayar'] ?? ''));
+        $lunas       = ($p['status_pembayaran'] ?? '') === 'lunas';
+        $sorot       = $idP === $fokusId;
+        ?>
+    <article id="pesanan-<?= $idP ?>"
+      class="rounded-2xl border bg-white p-5 shadow-sm <?= $sorot ? 'border-blue-400 ring-2 ring-blue-200' : 'border-slate-200' ?> <?= $isRiwayat ? 'opacity-90' : '' ?>">
+
+      <!-- Kepala kartu: tenant, antrean, status -->
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div class="min-w-0">
+          <p class="truncate text-base font-bold text-slate-900"><?= e($p['nama_tenant']) ?></p>
+          <p class="mt-0.5 text-xs text-slate-500">
+            Antrean <b class="text-blue-600">#<?= e($p['no_antrean']) ?></b>
+            · <span class="font-mono">#PSN-<?= $idP ?></span>
+            · <?= e(date('d M, H:i', strtotime($p['tanggal_pesanan']))) ?> WIB
+          </p>
+        </div>
+        <span class="rounded-full px-3 py-0.5 text-xs font-bold <?= $badgeKelas ?>"><?= e($judulStatus) ?></span>
       </div>
-      <?php if (!$dibatalkan && !$selesai): ?>
-      <div class="rounded-xl bg-white px-4 py-2.5 text-right shadow-sm border border-blue-100 shrink-0">
-        <span class="block text-[11px] font-bold uppercase tracking-wider text-slate-400">Estimasi Penyajian</span>
-        <span class="text-lg font-extrabold text-blue-600">10-15 Menit</span>
-      </div>
+
+      <?php if ($pesanStatus !== ''): ?>
+      <p class="mt-3 text-sm <?= $dibatalkan ? 'text-rose-700' : 'text-slate-600' ?>"><?= e($pesanStatus) ?></p>
       <?php endif; ?>
-    </section>
 
-    <!-- Progress Tracking Per Tenant -->
-    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-6">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Status Proses Stand Makanan & Minuman</h2>
-
-      <div class="space-y-3">
-        <div class="flex items-center justify-between text-sm">
-          <span class="font-bold text-slate-900">Tenant ID: <?= e($pesanan['id_tenant']) ?></span>
-          <span id="status-badge" data-status="<?= e($statusKey) ?>"
-            class="rounded-full px-3 py-0.5 text-xs font-bold <?= $badgeKelas ?>">
-            <?= e($statusLabel) ?>
-          </span>
-        </div>
-
-        <?php if ($dibatalkan): ?>
-        <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
-          <p class="font-bold">Pesanan ini tidak diproses.</p>
-          <p class="mt-1">Anda bisa memesan kembali dari tenant yang sama atau tenant lain.</p>
-          <a href="<?= e(url('pages/buyer/pilih_menu.php')) ?>"
-            class="mt-3 inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-dark transition">
-            Pesan Lagi
-          </a>
-        </div>
-        <?php else: ?>
+      <!-- Progres -->
+      <?php if (!$dibatalkan): ?>
+      <div class="mt-4 space-y-2">
         <div class="grid grid-cols-4 gap-2">
-          <div class="h-2 rounded-full <?= $step >= 1 ? 'bg-blue-600' : 'bg-slate-200' ?>"></div>
+          <?php for ($i = 1; $i <= 4; $i++): ?>
           <div
-            class="h-2 rounded-full <?= $step >= 2 ? 'bg-blue-600' : 'bg-slate-200' ?> <?= $step === 2 ? 'animate-pulse' : '' ?>">
+            class="h-2 rounded-full <?= $step >= $i ? 'bg-blue-600' : 'bg-slate-200' ?> <?= (!$isRiwayat && $step === $i && $i < 4 && $statusKey === 'diproses') ? 'animate-pulse' : '' ?>">
           </div>
-          <div class="h-2 rounded-full <?= $step >= 3 ? 'bg-blue-600' : 'bg-slate-200' ?>"></div>
-          <div class="h-2 rounded-full <?= $step >= 4 ? 'bg-blue-600' : 'bg-slate-200' ?>"></div>
+          <?php endfor; ?>
         </div>
         <div class="grid grid-cols-4 text-center text-[11px] font-semibold text-slate-400">
-          <span class="<?= $step >= 1 ? 'text-blue-600 font-bold' : '' ?>">Diterima</span>
-          <span class="<?= $step >= 2 ? 'text-blue-600 font-bold' : '' ?>">Diproses</span>
-          <span class="<?= $step >= 3 ? 'text-blue-600 font-bold' : '' ?>">Siap Diambil</span>
-          <span class="<?= $step >= 4 ? 'text-blue-600 font-bold' : '' ?>">Selesai</span>
+          <?php foreach (Pesanan::TAHAPAN as $idx => $tahap): ?>
+          <span
+            class="<?= $step >= $idx + 1 ? 'font-bold text-blue-600' : '' ?>"><?= e(Pesanan::STATUS_LABEL[$tahap]) ?></span>
+          <?php endforeach; ?>
         </div>
-        <?php endif; ?>
       </div>
-    </section>
-  </div>
+      <?php endif; ?>
 
-  <!-- Rincian Ringkasan Pesanan (Nota Digital) -->
-  <aside class="h-fit rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
-    <div class="flex items-center justify-between">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Detail Pesanan</h2>
-      <span class="text-xs font-mono font-semibold text-slate-500">#PSN-<?= e($pesanan['id_pesanan']) ?></span>
-    </div>
+      <!-- Rincian menu -->
+      <details class="mt-4 rounded-xl bg-slate-50 p-3" <?= $isRiwayat ? '' : 'open' ?>>
+        <summary class="cursor-pointer text-xs font-bold uppercase tracking-wider text-slate-500">
+          Rincian Menu (<?= count($items) ?>)
+        </summary>
+        <ul class="mt-3 divide-y divide-slate-200 text-sm">
+          <?php foreach ($items as $it): ?>
+          <li class="flex justify-between gap-3 py-2">
+            <div class="min-w-0">
+              <p class="font-semibold text-slate-900"><?= e($it['nama_menu']) ?></p>
+              <p class="text-xs text-slate-400"><?= (int) $it['jumlah'] ?>x @
+                Rp<?= number_format($it['harga_satuan'], 0, ',', '.') ?></p>
+            </div>
+            <span
+              class="shrink-0 font-semibold text-slate-900">Rp<?= number_format($it['subtotal'], 0, ',', '.') ?></span>
+          </li>
+          <?php endforeach; ?>
+          <?php if (!$items): ?>
+          <li class="py-2 text-xs text-slate-400">Belum ada rincian menu.</li>
+          <?php endif; ?>
+        </ul>
+      </details>
 
-    <div class="text-xs space-y-1.5 text-slate-600">
-      <p class="flex justify-between"><span>Pemesan:</span> <b
-          class="text-slate-900"><?= e($sesi['nama_pembeli'] ?? 'Tamu') ?></b></p>
-      <p class="flex justify-between"><span>Nomor Meja:</span> <b class="text-slate-900">Meja No.
-          <?= e($sesi['no_meja'] ?? '-') ?></b></p>
-      <p class="flex justify-between"><span>No. Antrean:</span> <b
-          class="text-blue-600">#<?= e($pesanan['no_antrean']) ?></b></p>
-    </div>
-
-    <hr class="border-slate-100">
-
-    <ul class="space-y-3 text-xs">
-      <?php foreach ($items as $item): ?>
-      <li class="flex justify-between">
-        <div>
-          <p class="font-bold text-slate-900"><?= e($item['nama_menu'] ?? 'Menu Item') ?></p>
-          <p class="text-slate-400"><?= e($item['jumlah']) ?>x @
-            Rp<?= number_format($item['harga_satuan'] ?? 0, 0, ',', '.') ?></p>
-        </div>
-        <span
-          class="font-semibold text-slate-900">Rp<?= number_format($item['subtotal'] ?? ($item['jumlah'] * $item['harga_satuan']), 0, ',', '.') ?></span>
-      </li>
-      <?php endforeach; ?>
-    </ul>
-
-    <hr class="border-slate-100">
-
-    <div class="space-y-1 text-xs">
-      <div class="flex justify-between text-base font-bold text-slate-900 pt-1">
-        <span>Total Akhir</span>
-        <span
-          class="<?= $dibatalkan ? 'text-slate-400 line-through' : 'text-blue-600' ?>">Rp<?= number_format($total_harga, 0, ',', '.') ?></span>
+      <!-- Total & pembayaran -->
+      <div class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 text-sm">
+        <span class="text-xs text-slate-500">
+          <?php if ($metode !== ''): ?>
+          Bayar: <b class="text-slate-800"><?= e($metode) ?></b> ·
+          <?= $dibatalkan ? 'Dibatalkan' : ($lunas ? 'Lunas' : 'Belum lunas') ?>
+          <?php endif; ?>
+        </span>
+        <span class="text-base font-bold <?= $dibatalkan ? 'text-slate-400 line-through' : 'text-blue-600' ?>">
+          Rp<?= number_format($total, 0, ',', '.') ?>
+        </span>
       </div>
-    </div>
-  </aside>
+
+      <?php if ($dibatalkan): ?>
+      <a href="<?= e(url('pages/buyer/pilih_menu.php?tenant=' . (int) $p['id_tenant'])) ?>"
+        class="mt-3 inline-flex h-10 items-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+        Pesan lagi di <?= e($p['nama_tenant']) ?>
+      </a>
+      <?php endif; ?>
+    </article>
+    <?php endforeach; ?>
+  </section>
+  <?php endforeach; ?>
 </main>
 
-<!-- Skrip JavaScript untuk Auto-Refresh Real-time -->
+<!-- Auto-refresh: muat ulang kalau status pesanan mana pun berubah -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('status-container');
-  const badge = document.getElementById('status-badge');
-  if (!container || !badge) return;
+  if (!container) return;
 
-  // Status akhir: tidak perlu dicek lagi
-  if (['selesai', 'dibatalkan'].includes(badge.dataset.status)) return;
+  // Rapikan posisi ke pesanan yang baru dibuat
+  const fokus = <?= (int) $fokusId ?>;
+  if (fokus > 0) {
+    const el = document.getElementById('pesanan-' + fokus);
+    if (el) el.scrollIntoView({
+      block: 'center'
+    });
+  }
 
-  const idPesanan = container.dataset.idPesanan;
+  // Semua pesanan sudah final: tidak perlu cek lagi
+  if (container.dataset.adaAktif !== '1') return;
+
+  const tandaAwal = container.dataset.tanda;
+  const urlCek = container.dataset.urlCek;
 
   const timer = setInterval(async () => {
     try {
-      const response = await fetch(`handlers/cek_status_pesanan.php?id_pesanan=${idPesanan}`);
+      const response = await fetch(urlCek, {
+        cache: 'no-store'
+      });
       const result = await response.json();
 
-      if (result.success && result.status_pesanan !== badge.dataset.status) {
+      if (result.success && result.tanda !== tandaAwal) {
         clearInterval(timer);
         location.reload();
       }

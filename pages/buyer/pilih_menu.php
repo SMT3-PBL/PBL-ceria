@@ -46,12 +46,17 @@ $menuList = $tenantTerpilih ? $menuModel->getMenusByTenant((string)$tenant_id, $
 
 $jumlahBuka = count(array_filter($daftarTenant, fn($t) => $t['status_tenant'] === 'buka'));
 
-// Tenant pemilik isi keranjang (dipakai tombol Lanjut Pembayaran)
-$tenantKeranjang = 0;
+// Jumlah item per tenant (untuk badge di daftar tenant)
+$jumlahPerTenant = [];
 foreach ($_SESSION['cart'] as $item) {
-  $tenantKeranjang = (int)($item['id_tenant'] ?? 0);
-  break;
+  $tid = (int)$item['id_tenant'];
+  $jumlahPerTenant[$tid] = ($jumlahPerTenant[$tid] ?? 0) + (int)$item['jumlah'];
 }
+
+// Keranjang milik tenant yang sedang dibuka
+$itemKeranjang = $tenantTerpilih
+  ? array_filter($_SESSION['cart'], fn($i) => (int)$i['id_tenant'] === $tenant_id)
+  : [];
 
 require __DIR__ . '/../../includes/header.php';
 ?>
@@ -76,6 +81,11 @@ require __DIR__ . '/../../includes/header.php';
             <?= e(strtoupper(substr($t['nama_tenant'], 0, 2))) ?>
           </span>
           <span class="font-semibold text-ink"><?= e($t['nama_tenant']) ?></span>
+          <?php if (!empty($jumlahPerTenant[(int)$t['id_tenant']])): ?>
+          <span class="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-white">
+            <?= $jumlahPerTenant[(int)$t['id_tenant']] ?>
+          </span>
+          <?php endif; ?>
         </a>
       </li>
       <?php endforeach; ?>
@@ -138,22 +148,22 @@ require __DIR__ . '/../../includes/header.php';
     </ul>
   </section>
 
-  <!-- Keranjang Belanja -->
+  <!-- Keranjang Belanja (per tenant) -->
   <aside class="h-fit rounded-xl border-2 border-primary/70 bg-white p-4 shadow-sm md:sticky md:top-24">
     <div class="flex items-start justify-between gap-2">
       <span
         class="rounded-md bg-soft px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-primary">Keranjang</span>
-      <span class="text-xs font-semibold text-muted"><?= count($_SESSION['cart']) ?> Jenis Menu</span>
+      <span class="text-xs font-semibold text-muted"><?= count($itemKeranjang) ?> Jenis Menu</span>
     </div>
 
     <ul class="mt-4 divide-y divide-dashed divide-line">
       <?php
       $total = 0;
-      if (empty($_SESSION['cart'])):
+      if (empty($itemKeranjang)):
       ?>
       <p class="py-4 text-center text-sm text-muted">Belum ada menu yang dipilih.</p>
       <?php else:
-        foreach ($_SESSION['cart'] as $id => $item):
+        foreach ($itemKeranjang as $id => $item):
           $subtotal = $item['harga'] * $item['jumlah'];
           $total += $subtotal;
         ?>
@@ -185,9 +195,9 @@ require __DIR__ . '/../../includes/header.php';
     </div>
 
     <form action="<?= url('pages/buyer/checkout.php') ?>" method="get" class="mt-4">
-      <input type="hidden" name="id_tenant" value="<?= $tenantKeranjang ?>">
-      <button type="submit"
-        class="flex h-12 w-full items-center justify-center rounded-lg bg-primary font-semibold text-white hover:bg-primary-dark transition shadow-sm">
+      <input type="hidden" name="id_tenant" value="<?= $tenant_id ?>">
+      <button type="submit" <?= empty($itemKeranjang) ? 'disabled' : '' ?>
+        class="flex h-12 w-full items-center justify-center rounded-lg bg-primary font-semibold text-white hover:bg-primary-dark transition shadow-sm disabled:cursor-not-allowed disabled:opacity-50">
         Lanjut Pembayaran
       </button>
     </form>
