@@ -64,23 +64,23 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
           <span>Food Court</span>
         </span>
 
+        <!-- Tombol Login Admin / Penjual di Pojok Kanan Atas -->
         <div>
           <a href="<?= url('pages/auth/login.php') ?>"
-             class="inline-flex items-center justify-center rounded-lg border border-line bg-surface px-3.5 py-2 text-xs font-semibold text-ink transition hover:bg-line sm:text-sm">
+            class="inline-flex items-center justify-center rounded-lg border border-line bg-surface px-3.5 py-2 text-xs font-semibold text-ink transition hover:bg-line sm:text-sm">
             Login
           </a>
         </div>
       </div>
     </header>
 
-  <!-- Header Buyer / Pembeli (Tanpa Tombol Logout) -->
+    <!-- Header Buyer / Pembeli (Tanpa Tombol Logout) -->
   <?php elseif ($role === 'buyer'):
     $sesi = sesi_pembeli();
     $nama = (string) ($sesi['nama_pembeli'] ?? '');
     $menuPembeli = [
       'menu'    => ['pages/buyer/pilih_menu.php',      'Pilih Menu &amp; Tenant'],
       'status'  => ['pages/buyer/status.php',          'Status Pesanan'],
-      'history' => ['pages/buyer/riwayat_pesanan.php', 'Riwayat Pesanan'],
     ];
   ?>
     <header class="sticky top-0 z-40 border-b border-line/70 bg-white print:hidden">
@@ -118,7 +118,7 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
       </div>
     </header>
 
-  <!-- Header Seller || Admin -->
+    <!-- Header Seller || Admin -->
   <?php elseif ($role === 'seller' || $role === 'admin'):
     $penjual = $role === 'seller';
     $menuStaf = $penjual
