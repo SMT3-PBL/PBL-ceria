@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/init.php';
 
-$role      = $role ?? 'buyer';
-$active    = $active ?? '';
+$role       = $role ?? 'buyer';
+$active     = $active ?? '';
 $pageTitle  = $pageTitle ?? 'Food Court';
 $buyerTheme = in_array($role, ['buyer', 'start'], true);
 
@@ -55,7 +55,7 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
 
 <body class="min-h-screen bg-surface font-sans text-ink antialiased">
 
-  <!-- Identitas-->
+  <!-- Header Start / Identitas Awal -->
   <?php if ($role === 'start'): ?>
     <header class="border-b border-line/70 bg-white print:hidden">
       <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
@@ -64,9 +64,8 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
           <span>Food Court</span>
         </span>
 
-        <!-- Tombol Login Admin / Penjual di Pojok Kanan Atas -->
         <div>
-          <a href="<?= url('pages/auth/login.php') ?>" 
+          <a href="<?= url('pages/auth/login.php') ?>"
              class="inline-flex items-center justify-center rounded-lg border border-line bg-surface px-3.5 py-2 text-xs font-semibold text-ink transition hover:bg-line sm:text-sm">
             Login
           </a>
@@ -74,13 +73,14 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
       </div>
     </header>
 
-  <!-- Header Buyer / Pembeli -->
+  <!-- Header Buyer / Pembeli (Tanpa Tombol Logout) -->
   <?php elseif ($role === 'buyer'):
-    $sesi  = sesi_pembeli();
-    $nama  = (string) ($sesi['nama_pembeli'] ?? '');
+    $sesi = sesi_pembeli();
+    $nama = (string) ($sesi['nama_pembeli'] ?? '');
     $menuPembeli = [
-      'menu'   => ['pages/buyer/pilih_menu.php',   'Pilih Menu &amp; Tenant'],
-      'status' => ['pages/buyer/status.php', 'Status Pesanan'],
+      'menu'    => ['pages/buyer/pilih_menu.php',      'Pilih Menu &amp; Tenant'],
+      'status'  => ['pages/buyer/status.php',          'Status Pesanan'],
+      'history' => ['pages/buyer/riwayat_pesanan.php', 'Riwayat Pesanan'],
     ];
   ?>
     <header class="sticky top-0 z-40 border-b border-line/70 bg-white print:hidden">
@@ -102,21 +102,18 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
           <?php endforeach; ?>
         </nav>
 
-        <!-- Informasi Pelanggan & Tombol Keluar -->
+        <!-- Informasi Pelanggan -->
         <div class="ml-auto flex items-center gap-3 lg:ml-auto">
           <span class="whitespace-nowrap rounded-full border border-line bg-soft px-3 py-1 text-xs font-bold text-ink">
             Meja No. <span data-pemesan-meja><?= e($sesi['no_meja'] ?? '-') ?></span>
           </span>
-          
+
           <p class="hidden items-center gap-3 whitespace-nowrap border-l border-line pl-3 text-right text-sm leading-tight lg:flex">
             <span>
-              <span class="block font-bold text-ink" data-pemesan-nama><?= e($nama) ?></span>
+              <span class="block font-bold text-ink" data-pemesan-nama><?= e($nama !== '' ? $nama : 'Pengunjung') ?></span>
             </span>
             <span class="grid size-9 place-items-center rounded-full bg-primary text-white"><?= $ikon['akun'] ?></span>
           </p>
-
-          <a href="<?= url('pages/auth/handlers/logout.php') ?>" aria-label="Keluar" title="Keluar"
-            class="grid size-10 place-items-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger"><?= $ikon['keluar'] ?></a>
         </div>
       </div>
     </header>
@@ -126,15 +123,15 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
     $penjual = $role === 'seller';
     $menuStaf = $penjual
       ? [
-        'orders'  => ['pages/seller/dashboard/pesanan_masuk.php',  'Pesanan Masuk'],
-        'menus'   => ['pages/seller/dashboard/kelola_menu.php',   'Kelola Menu'],
+        'orders'  => ['pages/seller/dashboard/pesanan_masuk.php',    'Pesanan Masuk'],
+        'menus'   => ['pages/seller/dashboard/kelola_menu.php',     'Kelola Menu'],
         'reports' => ['pages/seller/dashboard/laporan_penjualan.php', 'Laporan<span class="hidden sm:inline"> Penjualan</span>'],
       ]
       : [
-        'tenants'    => ['pages/admin/dashboard.php',    'Daftar Tenant'],
-        'tenant_add' => ['pages/admin/tambah.php', 'Tambah Tenant'],
+        'tenants'    => ['pages/admin/dashboard.php', 'Daftar Tenant'],
+        'tenant_add' => ['pages/admin/tambah.php',    'Tambah Tenant'],
       ];
-    $beranda = $penjual ? 'pages/seller/pesanan_masuk.php' : 'pages/admin/tenant.php';
+    $beranda = $penjual ? 'pages/seller/dashboard/pesanan_masuk.php' : 'pages/admin/dashboard.php';
     $tenantBuka = $penjual && strtolower((string) ($tenant['status_tenant'] ?? '')) === 'buka';
   ?>
 
@@ -147,7 +144,7 @@ $tenant = ($role === 'seller') ? tenant_aktif() : null;
             <span class="block text-[11px] text-muted"><?= $penjual ? 'Portal Penjual' : 'Portal Admin' ?></span>
           </span>
         </a>
-        
+
         <!-- Navigasi Staf -->
         <nav aria-label="Navigasi utama"
           class="order-3 -mx-4 mt-2 flex w-[calc(100%+2rem)] border-t border-line/60 px-4 text-sm font-semibold lg:order-none lg:mx-0 lg:ml-auto lg:mt-0 lg:w-auto lg:border-0 lg:px-0">
