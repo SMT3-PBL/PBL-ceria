@@ -25,6 +25,9 @@ $idPesanan = (int) (filter_var(
   ['options' => ['min_range' => 1]]
 ) ?: 0);
 
+// Asal permintaan: dari halaman detail (kembali ke detail) atau dari daftar (kembali ke daftar)
+$dariDetail = str_contains((string) ($_SERVER['HTTP_REFERER'] ?? ''), 'pesanan_masuk.php?id=');
+
 $pesanAksi = '';
 
 if ($tokenCsrf === '' || !hash_equals($tokenCsrf, (string) ($_POST['csrf_token'] ?? ''))) {
@@ -48,12 +51,16 @@ if ($tokenCsrf === '' || !hash_equals($tokenCsrf, (string) ($_POST['csrf_token']
 
     if (Pesanan::bolehUbahStatus($statusSaatIni, $statusBaru, $lunas)) {
       $pesanAksi = Pesanan::ubahStatus($pdo, $idPesanan, $idTenant, $statusSaatIni, $statusBaru)
-        ? 'Status pesanan diperbarui menjadi ' . (Pesanan::STATUS_LABEL[$statusBaru] ?? $statusBaru) . '.'
+        ? ($statusBaru === 'dibatalkan'
+            ? 'Pesanan ditolak.'
+            : 'Status pesanan diperbarui menjadi ' . (Pesanan::STATUS_LABEL[$statusBaru] ?? $statusBaru) . '.')
         : 'Status pesanan berubah di perangkat lain. Muat ulang halaman.';
+    } elseif ($statusBaru === 'dibatalkan') {
+      $pesanAksi = 'Pesanan yang sudah dikonfirmasi atau selesai tidak dapat ditolak.';
+    } elseif (!$lunas) {
+      $pesanAksi = 'Konfirmasi pembayaran terlebih dahulu sebelum memproses pesanan.';
     } else {
-      $pesanAksi = (!$lunas && $statusBaru !== 'dibatalkan')
-        ? 'Konfirmasi pembayaran terlebih dahulu sebelum memproses pesanan.'
-        : 'Perubahan status tidak sesuai urutan proses pesanan.';
+      $pesanAksi = 'Perubahan status tidak sesuai urutan proses pesanan.';
     }
   } else {
     $pesanAksi = 'Aksi tidak dikenali.';
@@ -61,6 +68,6 @@ if ($tokenCsrf === '' || !hash_equals($tokenCsrf, (string) ($_POST['csrf_token']
 }
 
 $_SESSION['pesanan_flash'] = $pesanAksi;
-$kembaliKe = $idPesanan > 0 ? '?id=' . $idPesanan : '';
+$kembaliKe = ($idPesanan > 0 && $dariDetail) ? '?id=' . $idPesanan : '';
 header('Location: ' . url($halamanPesanan . $kembaliKe));
 exit;

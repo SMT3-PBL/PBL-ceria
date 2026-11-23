@@ -76,6 +76,8 @@ require __DIR__ . '/../../../includes/header.php';
         ? ($statusBerikutnya[$statusDetail] ?? null)
         : null;
       $perluBayar = !$sudahLunas && !in_array($statusDetail, ['selesai', 'dibatalkan'], true);
+      // Tolak hanya boleh sebelum pembayaran dikonfirmasi
+      $bisaTolak = $statusDetail === 'menunggu_pembayaran';
       ?>
   <a href="<?= e(url('pages/seller/dashboard/pesanan_masuk.php')) ?>"
     class="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-primary"><span
@@ -142,7 +144,7 @@ require __DIR__ . '/../../../includes/header.php';
         <?php endif; ?>
       </div>
 
-      <?php if ($targetStatus !== null || !in_array($statusDetail, ['selesai', 'dibatalkan'], true)): ?>
+      <?php if ($targetStatus !== null || $bisaTolak): ?>
       <div class="mt-4 flex flex-wrap items-center gap-3">
         <?php if ($perluBayar): ?>
         <p class="flex-1 text-sm font-semibold text-muted">Konfirmasi pembayaran dulu untuk melanjutkan proses pesanan.
@@ -158,7 +160,7 @@ require __DIR__ . '/../../../includes/header.php';
             <?= e($statusLabel[$targetStatus]) ?></button>
         </form>
         <?php endif; ?>
-        <?php if (!in_array($statusDetail, ['selesai', 'dibatalkan'], true)): ?>
+        <?php if ($bisaTolak): ?>
         <form method="post" action="<?= e($urlHandler) ?>" data-confirm="Tolak dan batalkan pesanan ini?">
           <input type="hidden" name="csrf_token" value="<?= e($tokenCsrf) ?>"><input type="hidden" name="id_pesanan"
             value="<?= (int) $idPesanan ?>"><input type="hidden" name="aksi" value="status"><input type="hidden"
@@ -255,7 +257,11 @@ require __DIR__ . '/../../../includes/header.php';
     <?php foreach ($pesanan as $p): ?>
     <?php
           $lunasKartu = ($p['status_pembayaran'] ?? '') === 'lunas';
-          $akhirKartu = in_array($p['status_pesanan'], ['selesai', 'dibatalkan'], true);
+          $menunggu = $p['status_pesanan'] === 'menunggu_pembayaran';
+          $metodeKartu = (string) ($p['metode_bayar'] ?? '');
+          $adaBukti = !empty($p['bukti_bayar']);
+          // Bisa dikonfirmasi langsung dari daftar: tunai, atau QRIS yang sudah ada bukti
+          $bisaKonfirmasi = $menunggu && !$lunasKartu && ($metodeKartu === 'tunai' || ($metodeKartu === 'qris' && $adaBukti));
           $next = ($p['status_pesanan'] !== 'menunggu_pembayaran' && $lunasKartu)
             ? ($statusBerikutnya[$p['status_pesanan']] ?? null)
             : null;
@@ -282,6 +288,17 @@ require __DIR__ . '/../../../includes/header.php';
         <div class="mt-3 flex items-center justify-between border-t border-line/50 pt-3"><span
             class="text-sm text-muted">Total pembayaran</span><strong
             class="text-base"><?= rupiah($p['total']) ?></strong></div>
+        <?php if ($metodeKartu !== ''): ?>
+        <div class="mt-2 flex items-center justify-between gap-2 text-xs text-muted">
+          <span>Metode: <b class="uppercase text-ink"><?= e($metodeKartu) ?></b></span>
+          <?php if ($adaBukti): ?>
+          <a href="<?= e(url('uploads/bukti/' . $p['bukti_bayar'])) ?>" target="_blank" rel="noopener"
+            class="font-bold text-primary hover:underline">Lihat bukti ↗</a>
+          <?php elseif ($metodeKartu === 'qris'): ?>
+          <span class="font-semibold text-warn">Bukti belum diunggah</span>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
       </div>
       <div class="mt-4">
         <p class="mb-2 text-[10px] font-extrabold uppercase tracking-wide text-muted">Progres alur dapur tenant</p>
@@ -294,22 +311,42 @@ require __DIR__ . '/../../../includes/header.php';
           <?php endforeach; ?>
         </div>
       </div>
-      <div class="mt-4 flex items-center justify-between gap-3">
+      <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
         <a href="<?= e(url('pages/seller/dashboard/pesanan_masuk.php?id=' . (int) $p['id_pesanan'])) ?>"
           class="text-xs font-bold text-primary hover:underline">Lihat detail →</a>
-        <?php if ($next !== null): ?>
-        <form method="post" action="<?= e($urlHandler) ?>">
-          <input type="hidden" name="csrf_token" value="<?= e($tokenCsrf) ?>"><input type="hidden" name="id_pesanan"
-            value="<?= (int) $p['id_pesanan'] ?>"><input type="hidden" name="aksi" value="status"><input type="hidden"
-            name="status" value="<?= e($next) ?>">
-          <button type="submit"
-            class="rounded-lg bg-soft px-3 py-2 text-xs font-extrabold text-primary hover:bg-line">Tandai
-            <?= e(strtolower($statusLabel[$next])) ?></button>
-        </form>
-        <?php elseif (!$lunasKartu && !$akhirKartu): ?>
-        <span class="rounded-md bg-warn-soft px-2.5 py-1.5 text-[11px] font-extrabold uppercase text-warn">Belum
-          lunas</span>
-        <?php endif; ?>
+        <div class="flex items-center gap-2">
+          <?php if ($menunggu): ?>
+          <form method="post" action="<?= e($urlHandler) ?>" data-confirm="Tolak dan batalkan pesanan ini?">
+            <input type="hidden" name="csrf_token" value="<?= e($tokenCsrf) ?>"><input type="hidden"
+              name="id_pesanan" value="<?= (int) $p['id_pesanan'] ?>"><input type="hidden" name="aksi"
+              value="status"><input type="hidden" name="status" value="dibatalkan">
+            <button type="submit"
+              class="rounded-lg px-3 py-2 text-xs font-extrabold text-danger hover:bg-danger-soft">Tolak</button>
+          </form>
+          <?php if ($bisaKonfirmasi): ?>
+          <form method="post" action="<?= e($urlHandler) ?>">
+            <input type="hidden" name="csrf_token" value="<?= e($tokenCsrf) ?>"><input type="hidden"
+              name="id_pesanan" value="<?= (int) $p['id_pesanan'] ?>"><input type="hidden" name="aksi"
+              value="pembayaran">
+            <button type="submit"
+              class="rounded-lg bg-primary px-3 py-2 text-xs font-extrabold text-white hover:bg-primary-dark">✓
+              Konfirmasi pembayaran</button>
+          </form>
+          <?php else: ?>
+          <span class="rounded-md bg-warn-soft px-2.5 py-1.5 text-[11px] font-extrabold uppercase text-warn">Belum
+            lunas</span>
+          <?php endif; ?>
+          <?php elseif ($next !== null): ?>
+          <form method="post" action="<?= e($urlHandler) ?>">
+            <input type="hidden" name="csrf_token" value="<?= e($tokenCsrf) ?>"><input type="hidden"
+              name="id_pesanan" value="<?= (int) $p['id_pesanan'] ?>"><input type="hidden" name="aksi"
+              value="status"><input type="hidden" name="status" value="<?= e($next) ?>">
+            <button type="submit"
+              class="rounded-lg bg-soft px-3 py-2 text-xs font-extrabold text-primary hover:bg-line">Tandai
+              <?= e(strtolower($statusLabel[$next])) ?></button>
+          </form>
+          <?php endif; ?>
+        </div>
       </div>
     </article>
     <?php endforeach; ?>

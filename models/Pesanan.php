@@ -63,7 +63,7 @@ class Pesanan {
     $stmt = $pdo->prepare(
       "SELECT p.id_pesanan, p.no_antrean, p.status_pesanan, p.tanggal_pesanan,
             s.nama AS nama_pembeli, s.no_meja,
-            b.metode_bayar, b.status_pembayaran,
+            b.metode_bayar, b.status_pembayaran, b.bukti_bayar,
             COALESCE(SUM(d.subtotal), 0) AS total,
             COALESCE(SUM(d.jumlah), 0) AS porsi,
             string_agg(d.nama_menu || ' × ' || d.jumlah, ', ' ORDER BY d.id_detail) AS ringkasan_menu
@@ -73,7 +73,7 @@ class Pesanan {
         LEFT JOIN detail_pesanan d ON d.id_pesanan = p.id_pesanan
         WHERE " . implode(' AND ', $where) . "
         GROUP BY p.id_pesanan, p.no_antrean, p.status_pesanan, p.tanggal_pesanan,
-            s.nama, s.no_meja, b.metode_bayar, b.status_pembayaran
+            s.nama, s.no_meja, b.metode_bayar, b.status_pembayaran, b.bukti_bayar
         ORDER BY CASE p.status_pesanan
             WHEN 'menunggu_pembayaran' THEN 1 WHEN 'diterima' THEN 2
             WHEN 'diproses' THEN 3 WHEN 'siap_diambil' THEN 4 ELSE 5 END,
@@ -111,6 +111,50 @@ class Pesanan {
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
   }
 
+  /** Semua pesanan milik satu sesi pembeli (semua tenant), terbaru dulu. */
+  public static function daftarBySesi(PDO $pdo, int $idSesi): array {
+    $stmt = $pdo->prepare(
+      "SELECT p.id_pesanan, p.no_antrean, p.id_tenant, p.status_pesanan, p.tanggal_pesanan,
+              t.nama_tenant, b.metode_bayar, b.status_pembayaran
+         FROM pesanan p
+         JOIN tenant t ON t.id_tenant = p.id_tenant
+         LEFT JOIN pembayaran b ON b.id_pesanan = p.id_pesanan
+        WHERE p.id_sesi = ?
+        ORDER BY p.tanggal_pesanan DESC, p.id_pesanan DESC"
+    );
+    $stmt->execute([$idSesi]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  /** Item menu untuk banyak pesanan sekaligus, dikelompokkan per id_pesanan. */
+  public static function itemBanyak(PDO $pdo, array $idPesanan): array {
+    $idPesanan = array_values(array_map('intval', $idPesanan));
+    if (!$idPesanan) {
+      return [];
+    }
+    $in = implode(',', array_fill(0, count($idPesanan), '?'));
+    $stmt = $pdo->prepare(
+      "SELECT id_pesanan, nama_menu, harga_satuan, jumlah, subtotal
+         FROM detail_pesanan WHERE id_pesanan IN ($in) ORDER BY id_detail ASC"
+    );
+    $stmt->execute($idPesanan);
+
+    $hasil = [];
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $baris) {
+      $hasil[(int) $baris['id_pesanan']][] = $baris;
+    }
+    return $hasil;
+  }
+
+  /** Tanda ringkas status semua pesanan (dipakai auto-refresh untuk mendeteksi perubahan). */
+  public static function tandaDari(array $daftar): string {
+    usort($daftar, static fn(array $a, array $b): int => (int) $a['id_pesanan'] <=> (int) $b['id_pesanan']);
+    return implode('|', array_map(
+      static fn(array $p): string => (int) $p['id_pesanan'] . ':' . $p['status_pesanan'] . ':' . ($p['status_pembayaran'] ?? ''),
+      $daftar
+    ));
+  }
+
   /** Item menu dalam satu pesanan. */
   public static function item(PDO $pdo, int $idPesanan): array {
     $stmt = $pdo->prepare(
@@ -143,13 +187,14 @@ class Pesanan {
 
   /**
    * Apakah perubahan status dari $dari ke $ke diperbolehkan.
-   * - Menolak (dibatalkan) boleh selama pesanan belum selesai/dibatalkan.
+   * - Menolak (dibatalkan) HANYA boleh saat masih 'menunggu_pembayaran' dan belum lunas.
+   *   Setelah pembayaran dikonfirmasi, pesanan tidak bisa dibatalkan lagi.
    * - 'diterima' hanya terjadi otomatis lewat konfirmasi pembayaran.
    * - Tahap berikutnya (diproses, siap diambil, selesai) wajib sudah lunas.
    */
   public static function bolehUbahStatus(string $dari, string $ke, bool $lunas): bool {
     if ($ke === 'dibatalkan') {
-      return !in_array($dari, ['selesai', 'dibatalkan'], true);
+      return $dari === 'menunggu_pembayaran' && !$lunas;
     }
     if ($dari === 'menunggu_pembayaran') {
       return false;

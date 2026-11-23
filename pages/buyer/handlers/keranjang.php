@@ -17,14 +17,6 @@ if ($action === 'add') {
     $menu = $menuModel->getMenuById((string)$id_menu);
 
     if ($menu) {
-        // Kalau keranjang berisi tenant lain (atau item lama tanpa id_tenant), kosongkan dulu
-        foreach ($_SESSION['cart'] as $item) {
-            if ((int)($item['id_tenant'] ?? 0) !== (int)$menu['id_tenant']) {
-                $_SESSION['cart'] = [];
-                break;
-            }
-        }
-
         if (isset($_SESSION['cart'][$id_menu])) {
             $_SESSION['cart'][$id_menu]['jumlah']++;
         } else {
